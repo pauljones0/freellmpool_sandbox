@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pytest
@@ -143,6 +144,36 @@ def test_new_run_id_is_filesafe_and_unique() -> None:
     ids = {rc.new_run_id() for _ in range(50)}
     assert len(ids) == 50
     assert all(set(i) <= set("0123456789TZ-abcdef") for i in ids)
+
+
+
+def test_same_second_runs_keep_distinct_paths_when_entropy_prefixes_match(tmp_path, monkeypatch) -> None:
+    frozen = datetime(2026, 9, 30, 0, 0, tzinfo=UTC)
+    monkeypatch.setattr(rc, "datetime", SimpleNamespace(now=lambda tz: frozen))
+    calls = iter(range(50))
+
+    def entropy(size):
+        # Full random values differ even when their first two bytes collide.
+        value = bytes(14) + next(calls).to_bytes(2, "big")
+        return value[:size]
+
+    monkeypatch.setattr(rc.secrets, "token_bytes", entropy)
+    paths = [rc.checkpoint_path(rc.new_run_id(), runs_dir=tmp_path) for _ in range(50)]
+    assert len(set(paths)) == 50
+    assert all(path.parent == tmp_path and len(path.stem) <= 64 for path in paths)
+
+
+def test_legacy_short_random_suffix_checkpoint_remains_resumable(tmp_path) -> None:
+    old_id = "20260929T000000Z-abcd"
+    path = rc.checkpoint_path(old_id, runs_dir=tmp_path)
+    checkpoint = rc.RunCheckpoint(old_id, "tokenmax", 64, path=path)
+    checkpoint.record("llm7/model", text="saved answer")
+    checkpoint.save()
+    loaded = rc.RunCheckpoint.load(path)
+    assert loaded.run_id == old_id
+    replay, pending = rc.resume_plan(loaded)
+    assert replay == [("llm7/model", "saved answer")]
+    assert pending == []
 
 
 def test_fan_out_normalizes_missing_text_for_merge() -> None:

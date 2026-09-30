@@ -15,7 +15,6 @@ not encode data residency, this table says so instead of guessing.
 | Provider id | Destination in the catalog | Access | Jurisdiction or region, where stated | Practical privacy posture |
 |---|---|---:|---|---|
 | `llm7` | `https://api.llm7.io/v1` | Key optional | LLM7's privacy policy says it operates from the United Kingdom. | Optional-token gateway; prompts go to LLM7 and whatever upstream serving path it uses. |
-| `ovh` | `https://oai.endpoints.kepler.ai.cloud.ovh.net/v1` | Keyless | OVHcloud describes AI Endpoints as a privacy-focused OVHcloud service; the catalog does not pin a region. | Strongest keyless privacy posture in this catalog, but still a third-party hosted API. |
 | `kilo` | `https://api.kilo.ai/api/gateway` | Keyless | Kilo Code Inc.; endpoint region is not stated in the catalog. | Gateway docs warn not to submit personal or confidential data; treat free routes as logged. |
 | `opencode` | `https://opencode.ai/zen/v1` | Keyless, disabled by default | OpenCode Zen endpoint region is not stated in the catalog. | Anonymous gateway; cataloged for explicit opt-in only until its privacy/retention posture is reviewed. |
 | `groq` | `https://api.groq.com/openai/v1` | `GROQ_API_KEY` | Groq, Inc.; endpoint region is not stated in the catalog. | Direct provider API using your Groq key; check Groq's current service/privacy terms for retention. |
@@ -162,7 +161,6 @@ Code behavior:
 Provider policy links checked for this FAQ:
 
 - LLM7: <https://github.com/chigwell/llm7.io/blob/main/PRIVACY.md>
-- OVHcloud AI Endpoints: <https://www.ovhcloud.com/en/public-cloud/ai-endpoints/>
 - Kilo Gateway: <https://kilo.ai/docs/gateway/models-and-providers>
 - Groq: <https://groq.com/privacy-policy>
 - NVIDIA: <https://www.nvidia.com/en-us/about-nvidia/privacy-policy/>

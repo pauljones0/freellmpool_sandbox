@@ -1,6 +1,6 @@
 # Provider evidence and maintained discovery
 
-Reviewed September 18, 2026. The packaged registry contains 16 audited provider groups. GitHub Models is retired. A provider or model listing is not proof of recurring free access.
+The packaged compatibility catalog contains 12 provider groups. The registry also includes dynamically discovered OpenCode routes. GitHub Models is retired. A provider or model listing is not proof of recurring free access.
 
 The registry separates public service terms, model pricing, account entitlement, quota limits, and tested capabilities. The router must require each applicable item to remain fresh. Discovery updates only listing facts; it never renews entitlement, reviewed prices, rate-limit evidence, or tool conformance.
 
@@ -11,7 +11,6 @@ A conditional grant needs current local account evidence. A zero-price route sti
 | Provider | Reviewed grant | Scope and reset | Official evidence |
 | --- | --- | --- | --- |
 | LLM7 (key optional) | recurring_quota (verified) | 1 requests / rolling 1s / ip; 10 requests / rolling 60s / ip; 60 requests / rolling 3600s / ip; 500000 total_tokens / rolling 86400s / ip | [terms](https://docs.llm7.io/limits), [models](https://docs.llm7.io/guides/models) |
-| OVHcloud AI Endpoints (keyless) | recurring_quota (verified; chat + embedding) | 2 requests / rolling 60s / ip_model | [terms](https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-getting-started), [pricing](https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-billing) |
 | Kilo Gateway (keyless) | zero_price (verified) | 200 requests / rolling 3600s / ip | [terms](https://kilo.ai/docs/gateway/authentication), [pricing](https://kilo.ai/docs/gateway/usage-and-billing) |
 | OpenCode Zen (keyless) | zero_price (verified) | unknown requests / unknown 86400s / ip | [terms](https://opencode.ai/docs/zen), [limiter](https://github.com/anomalyco/opencode/blob/dev/packages/console/app/src/routes/zen/util/ipRateLimiter.ts) |
 | Groq | recurring_quota (conditional) — free | Model-specific RPM/RPD/TPM/TPD; Whisper audio-seconds/hour/day; unpublished model limits stay unknown | [terms](https://console.groq.com/docs/billing-faqs), [limits](https://console.groq.com/docs/rate-limits), [audio billing](https://console.groq.com/docs/speech-to-text) |
@@ -38,7 +37,7 @@ A conditional grant needs current local account evidence. A zero-price route sti
 - **Retired providers:** Aion and ModelScope have no current grants or routes.
   Their tombstones prevent re-admission; historical observations below do not
   establish current free access.
-- **LLM7, OVH and Kilo:** anonymous grants use IP-related shared scopes and omit `Authorization` completely. Adding a key does not create another IP allowance. LLM7 anonymous eligibility uses reviewed Turbo/non-usage-based candidates; positive price metadata for paid modes does not erase a separately verified anonymous grant.
+- **LLM7 and Kilo:** anonymous grants use IP-related shared scopes and omit `Authorization` completely. Adding a key does not create another IP allowance. LLM7 anonymous eligibility uses reviewed Turbo/non-usage-based candidates; positive price metadata for paid modes does not erase a separately verified anonymous grant.
 - **OpenCode:** Zen's free models are temporary offers with their own conditions. Go is paid. Free-only profiles must not inherit Zen auto-reload or paid fallback. Responses-only models need the correct protocol and independent conformance.
 - **Z.ai:** the global listing omits some exact models documented as free. The reviewed grant can supply unlisted candidates after a complete, nonempty listing succeeds; it does not prove availability. Positive prices in the listing take precedence. Separate bounded checks found two working routes and one timeout, as recorded in [API coverage](api-coverage.md#reviewed-candidates-missing-from-a-model-listing).
 
@@ -117,7 +116,7 @@ Local renewal state uses `$XDG_STATE_HOME/freellmpool/evidence.json` or `FREELLM
 
 ## Validation and limitations
 
-The packaged grants admit chat plus three reviewed embedding routes (OVH `Qwen3-Embedding-8B` keyless, Mistral `mistral-embed`, Cloudflare `@cf/baai/bge-small-en-v1.5`); each exact endpoint, recurring grant, and non-text accounting path was reviewed together with live tests. Transcription catalogs are discovered, and protocol adapters remain available, but there are **zero admitted upstream transcription routes** until the same joint review completes. Groq's audio floor is a prerequisite, not a claim that transcription is already enabled or live-tested.
+The packaged grants admit chat plus two reviewed embedding routes (Mistral `mistral-embed`, Cloudflare `@cf/baai/bge-small-en-v1.5`). Both embedding routes require credentials and current reviewed free-account evidence; each exact endpoint, recurring grant, and non-text accounting path was reviewed together with live tests. Transcription catalogs are discovered, and protocol adapters remain available, but there are **zero admitted upstream transcription routes** until the same joint review completes. Groq's audio floor is a prerequisite, not a claim that transcription is already enabled or live-tested.
 
 Tests exercise every provider parser, native pagination, same-origin enforcement, partial/empty/auth failures, secret-free output, exact route identity, zero-price contradictions, private atomic replacement, and immutable source review. Bounded live public listing checks use no inference or credentials. Public catalogs can change during one day; current normalized upstream-route counts are deliberately not treated as enduring advertising claims.
 

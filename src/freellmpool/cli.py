@@ -767,7 +767,12 @@ def cmd_status_publish(args: argparse.Namespace) -> int:
     from .drift import utcnow
     from .healthcheck import HealthRow
     from .router import Pool
-    from .status_page import collect_live_rows, collect_public_rows, publish_status
+    from .status_page import (
+        collect_live_rows,
+        collect_public_rows,
+        filter_retired_rows,
+        publish_status,
+    )
 
     if args.rows_file:
         # G37: rows-file mode is a documented-ignore for -p (see its help):
@@ -795,6 +800,7 @@ def cmd_status_publish(args: argparse.Namespace) -> int:
                 return 2
         rows = collect_live_rows(pool, model=args.model, providers=provider_filter,
                                  timeout=args.timeout)
+    rows = filter_retired_rows(rows)
     page, history = publish_status(args.docs_dir, rows, generated_at=utcnow(),
                                    version=__version__)
     ok = sum(1 for r in rows if r.ok)

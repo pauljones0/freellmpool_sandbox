@@ -12,8 +12,9 @@ from freellmpool.provider_registry import load_registry
 
 def test_registry_covers_audited_groups_with_independent_evidence():
     registry = load_registry()
-    assert len(registry) == 14
+    assert len(registry) == 13
     assert "github" not in registry
+    assert "ovh" not in registry
     for key, row in registry.items():
         assert row["id"] == key
         assert row["setup"]["signup_url"].startswith("https://")
@@ -25,7 +26,7 @@ def test_registry_covers_audited_groups_with_independent_evidence():
     assert any(row["timezone"] == "America/Los_Angeles" for row in registry["gemini"]["limits"])
     assert all(grant["hard_free_boundary"] is True for provider in registry.values() for grant in provider["grants"])
     assert all(grant["kind"] in {"zero_price", "recurring_quota", "recurring_credit"} for provider in registry.values() for grant in provider["grants"])
-    assert all(registry[name]["inference_auth"] == "none" for name in ("llm7", "ovh", "kilo", "opencode"))
+    assert all(registry[name]["inference_auth"] == "none" for name in ("llm7", "kilo", "opencode"))
 
 
 def test_registry_rejects_unknown_inference_auth_before_runtime(monkeypatch, tmp_path):

@@ -3,8 +3,8 @@
 freellmpool is a local gateway built around reviewed provider policy,
 current model discovery, free eligibility, transactional allowance accounting,
 bounded provider clients, and CLI/proxy/MCP interfaces. The packaged compatibility
-catalog contains 13 provider groups, 128 cataloged chat models, and
-128 enabled chat routes. Catalog counts do not establish current usable capacity:
+catalog contains 12 provider groups, 117 cataloged chat models, and
+117 enabled chat routes. Catalog counts do not establish current usable capacity:
 managed routing also requires fresh policy and discovery, account evidence where
 needed, and verified protocol capabilities for feature-specific calls. Aion and
 ModelScope are retired; their registry tombstones prevent accidental re-admission.

@@ -49,7 +49,8 @@ def checkpoint_path(run_id: str, *, runs_dir: Path | None = None) -> Path:
 def new_run_id() -> str:
     """Generate a filesafe unique run id (UTC stamp + randomness)."""
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    return f"{stamp}-{secrets.token_hex(2)}"
+    # 128 random bits prevent same-second runs from sharing checkpoint paths.
+    return f"{stamp}-{secrets.token_hex(16)}"
 
 
 def _utcnow() -> str:

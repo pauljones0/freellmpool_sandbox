@@ -8,12 +8,12 @@
 
 ![demostración de freellmpool tokenmax en terminal](assets/demo.svg)
 
-![128 rutas de chat habilitadas, 13 proveedores catalogados, inicio sin clave cuando está disponible](assets/tokenmax-results.svg)
+![117 rutas de chat habilitadas, 12 proveedores catalogados, inicio sin clave cuando está disponible](assets/tokenmax-results.svg)
 
-freellmpool cataloga 13 proveedores de LLM como grupos distintos que abarcan
+freellmpool cataloga 12 proveedores de LLM como grupos distintos que abarcan
 niveles gratuitos recurrentes, endpoints sin clave, pruebas finitas, rutas solo
-por pin y candidatos deshabilitados. Expone 128 rutas de chat habilitadas y
-128 modelos de chat catalogados detrás de un endpoint compatible con OpenAI, y
+por pin y candidatos deshabilitados. Expone 117 rutas de chat habilitadas y
+117 modelos de chat catalogados detrás de un endpoint compatible con OpenAI, y
 agrupa automáticamente solo las rutas habilitadas a las que tienes acceso. Puede
 empezar sin credenciales cuando hay una ruta sin clave habilitada y disponible.
 
@@ -59,7 +59,7 @@ cambian por proveedor. freellmpool usa automáticamente solo rutas habilitadas a
 las que tienes acceso, cambia a la siguiente ante rate limit o caída y registra
 el uso diario local.
 
-Varios proveedores (OVHcloud y Kilo Gateway) no necesitan clave de
+Kilo Gateway no necesita clave de
 API, y LLM7 permite una clave opcional, así que el inicio rápido anterior puede
 responder sin registro cuando una ruta sin clave está disponible.
 
@@ -251,7 +251,6 @@ $ freellmpool benchmark
   provider/model            status   latency  note
   cerebras/gpt-oss-120b     ok        180 ms  6 tok
   groq/openai/gpt-oss-20b   ok        240 ms  6 tok
-  ovh/Meta-Llama-3_3-70B-Instruct  FAIL    -  HTTP 429
 ```
 
 ## Capacidad y salud de proveedores
@@ -320,7 +319,6 @@ tarjeta, prueba finita o precio están en [docs/ACCOUNTS.md](docs/ACCOUNTS.md).
 
 | Proveedor | Variable de entorno | Notas |
 |---|---|---|
-| OVHcloud | — | no necesita clave (nivel anónimo) |
 | Kilo Gateway | — | no necesita clave |
 | LLM7 | `LLM7_API_KEY` | opcional |
 | Groq | `GROQ_API_KEY` | rutas del plan gratuito actual; los límites varían por modelo |
@@ -422,7 +420,7 @@ Notas de arquitectura: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 | Herramienta | Inicio sin clave | # proveedores | Failover | Servidor MCP | CLI | Transcripción | Local/self-hosted | Licencia |
 |---|---|---:|---|---|---|---|---|---|
-| **freellmpool** | Sí, cuando hay disponible un proveedor sin clave configurado | 13 proveedores de chat catalogados localmente | Sí: fallos reintentables, respuestas vacías y errores de transporte | Sí: `freellmpool mcp` | CLI one-shot más perfiles, biblioteca y proxy | Sí: `/v1/audio/transcriptions` con failover | Sí: paquete Python y proxy local | MIT |
+| **freellmpool** | Sí, cuando hay disponible un proveedor sin clave configurado | 12 proveedores de chat catalogados localmente | Sí: fallos reintentables, respuestas vacías y errores de transporte | Sí: `freellmpool mcp` | CLI one-shot más perfiles, biblioteca y proxy | Sí: `/v1/audio/transcriptions` con failover | Sí: paquete Python y proxy local | MIT |
 | [OpenRouter free models](https://openrouter.ai/openrouter/free/providers) | No: el servicio hospedado requiere cuenta/clave | Router hospedado; su lista gratuita cambia | Sí: fallbacks de proveedor/modelo | Sí: servidor MCP remoto hospedado | API/SDK hospedados, no gateway CLI local | Audio/transcripción vía chat multimodal | No: servicio hospedado | Servicio propietario |
 | [LiteLLM](https://github.com/BerriAI/litellm/blob/5d4c4d0fce45c73c4b56b48e46dfc4e56e8b0aa5/README.md) | No: aporta credenciales de proveedor o gateway | El README afirma 100+ LLM/proveedores | Sí: router, reintentos y fallbacks | Sí: AI Gateway incluye MCP Gateway | SDK y proxy/gateway CLI | Sí: `/audio/transcriptions` | Sí: proxy self-hosted u oferta hospedada | Core MIT; funciones enterprise comerciales |
 | [OmniRoute](https://github.com/diegosouzapw/OmniRoute/blob/d8ff51874c8add566d43225988b9bc67e0542d65/README.md) | Sí: documenta una opción OpenCode sin autenticación | El README afirma 268 integraciones/proveedores y 90+ opciones gratuitas | Sí: routing y circuit breaker por capas | Sí: planos MCP y A2A | CLI amplio y configuración de agentes | Documenta traducción de audio; otras capacidades varían | Sí: Node, dashboard, Docker y desktop/PWA | MIT |
@@ -463,7 +461,7 @@ a través del puente Anthropic. Consulta `freellmpool code <agent>`. (La ruta
 Claude Code es experimental: texto + herramientas, sin visión.)
 
 **¿Necesito una clave de API?** No mientras haya una ruta sin clave habilitada y disponible:
-OVHcloud y Kilo Gateway exponen rutas sin clave, y LLM7 permite una
+Kilo Gateway expone rutas sin clave, y LLM7 permite una
 clave opcional. Agrega credenciales gratuitas o de prueba cuando correspondan
 para ampliar rutas y capacidad; las condiciones cambian por proveedor.
 

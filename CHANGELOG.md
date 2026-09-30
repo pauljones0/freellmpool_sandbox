@@ -12,8 +12,6 @@ All notable changes to this project are documented here. The format is based on
 - Repair scheduled status publishing by committing the sitemap with each
   snapshot. Public probes refresh discovery and unchanged policy evidence in
   isolated temporary state; skipped checks have a separate count.
-- Classify OVH's metadata-free `nvr-tts-*` catalog entries as speech so chat
-  health checks select chat models; explicit modality metadata still wins.
 - Correct this fork's public site URLs and catalog claims, enforce provider-group
   counts, reconcile stale goal-tracker completion notes, and lazily create the
   default stats store so explicit isolated stores do not read private state.
@@ -31,6 +29,21 @@ All notable changes to this project are documented here. The format is based on
   URL with the identical article hash, renew OpenRouter/Zhipu/OpenCode hashes
   to current observed text, and block Groq qwen3.6-27b with its stale
   capacities removed after it left the official free table.
+
+## [0.14.7] — owner-directed provider retirement
+
+- Prevent same-second checkpoint ID collisions by increasing the random suffix
+  from 16 to 128 bits; existing checkpoints remain resumable.
+
+- Remove OVH chat and embedding support at the owner's request after persistent
+  observed HTTP 429 responses. A permanent tombstone prevents re-admission;
+  this is a local support decision, not a claim that the provider stopped its
+  service. Policy revision 16 requires source client 0.14.7.
+- Remove current OVH setup, examples, leaderboard rows and status history.
+  The compatibility catalog now has 12 providers and 117 chat routes; its two
+  remaining reviewed embedding routes require credentials and account evidence.
+- Retire the obsolete keyless RAG container proof, document current embedding
+  setup requirements, and regenerate catalog cards without changing dated audits.
 
 ## [0.14.6] — evidence source hardening
 

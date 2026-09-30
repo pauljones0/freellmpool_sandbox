@@ -169,140 +169,6 @@
       "inference_auth": "none"
     },
     {
-      "id": "ovh",
-      "display_name": "OVHcloud AI Endpoints (keyless)",
-      "region": "international",
-      "api_base_url": "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1",
-      "credential_env": null,
-      "discovery": {
-        "url": "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/models",
-        "auth": "none",
-        "parser": "ovh",
-        "pagination": "none",
-        "supports_public": true,
-        "catalog_ttl_seconds": 86400,
-        "max_pages": 100,
-        "headers": {},
-        "params": {}
-      },
-      "grants": [
-        {
-          "id": "free",
-          "kind": "recurring_quota",
-          "status": "verified",
-          "model_selector": {
-            "kind": "all",
-            "models": []
-          },
-          "required_account_tier": null,
-          "requires_account_evidence": false,
-          "paid_overage_possible": false,
-          "hard_free_boundary": true,
-          "allowed_modalities": [
-            "chat"
-          ],
-          "prohibited_addons": [
-            "web_search",
-            "paid_tools",
-            "paid_fallback",
-            "byok_fallback"
-          ],
-          "evidence_ids": [
-            "terms"
-          ]
-        },
-        {
-          "id": "free-embedding",
-          "kind": "recurring_quota",
-          "status": "verified",
-          "model_selector": {
-            "kind": "allowlist",
-            "models": [
-              "Qwen3-Embedding-8B"
-            ]
-          },
-          "required_account_tier": null,
-          "requires_account_evidence": false,
-          "paid_overage_possible": false,
-          "hard_free_boundary": true,
-          "allowed_modalities": [
-            "embedding"
-          ],
-          "prohibited_addons": [
-            "web_search",
-            "paid_tools",
-            "paid_fallback",
-            "byok_fallback"
-          ],
-          "evidence_ids": [
-            "terms"
-          ]
-        }
-      ],
-      "limits": [
-        {
-          "id": "anonymous_rpm",
-          "grant_ids": [
-            "free",
-            "free-embedding"
-          ],
-          "scope": "ip_model",
-          "scope_keys": [
-            "egress_ip_ref",
-            "model_id"
-          ],
-          "metric": "requests",
-          "algorithm": "rolling",
-          "capacity": 2,
-          "window_seconds": 60,
-          "timezone": null,
-          "anchor": null,
-          "evidence_ids": [
-            "terms"
-          ],
-          "accounting_note": "Two requests/minute per IP+model observed in official endpoint headers during the saved September 5 audit; no daily allowance verified."
-        }
-      ],
-      "evidence": [
-        {
-          "id": "terms",
-          "url": "https://raw.githubusercontent.com/ovh/ovhcloud-docs/HEAD/docs/en/guides/public-cloud/ai-machine-learning/ai-endpoints-getting-started.mdx",
-          "checked_at": "2026-09-26T00:00:00+00:00",
-          "expires_at": "2026-10-03T00:00:00+00:00",
-          "claim": "Anonymous testing access has limited per-IP requests; authenticated Public Cloud billing is separate.",
-          "status": "verified",
-          "source_hash": {
-            "algorithm": "visible_text_v1",
-            "sha256": "f8432756fea4e07ce2001ec6d4338e16501fec4e0a988b7f7bd268877476f4a8"
-          }
-        },
-        {
-          "id": "pricing",
-          "url": "https://raw.githubusercontent.com/ovh/ovhcloud-docs/HEAD/docs/en/guides/public-cloud/ai-machine-learning/ai-endpoints-billing.mdx",
-          "checked_at": "2026-09-26T00:00:00+00:00",
-          "expires_at": "2026-10-03T00:00:00+00:00",
-          "claim": "Billing and lifecycle documentation describes paid account billing, separate from the documented anonymous per-IP allowance.",
-          "status": "verified",
-          "source_hash": {
-            "algorithm": "visible_text_v1",
-            "sha256": "8281687f8b6e272e6a128f36f3addc32646e6eafff0be6568c7ee4493c79ca05"
-          }
-        }
-      ],
-      "setup": {
-        "signup_url": "https://www.ovhcloud.com/en/public-cloud/ai-endpoints/",
-        "key_url": "https://www.ovhcloud.com/en/public-cloud/ai-endpoints/",
-        "steps": [
-          "Anonymous evaluation needs no account or key. Authenticated OVH usage is a separate billed service.",
-          "Keep the gateway Authorization header omitted for this provider."
-        ],
-        "required_env": []
-      },
-      "restrictions": [],
-      "default_enabled": true,
-      "inference_auth": "none"
-    },
-    {
       "id": "kilo",
       "display_name": "Kilo Gateway (keyless)",
       "region": "international",
@@ -2394,6 +2260,10 @@
       "id": "aion",
       "reason": "Removed 2026-09-26 per owner verification that Aion withdrew free models (account-level; published pricing still advertised a $0 tier at removal time and inference returned HTTP 502 on all routes for 3+ hours; catalog listing cannot validate free entitlement).",
       "source_url": "https://api.aionlabs.ai/v1/models"
+    },
+    {
+      "id": "ovh",
+      "reason": "Removed 2026-09-29 at owner direction after persistent observed HTTP 429 responses on anonymous routes."
     }
   ]
 }

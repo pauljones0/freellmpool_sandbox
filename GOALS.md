@@ -21,6 +21,39 @@ removes setup steps or failure modes is in.
   progress never counts as completion.
 - Commit and push per completed goal. Keep this file's statuses current.
 
+## OVH retirement follow-up — 2026-09-29
+
+Removed OVH chat and embedding support at owner direction after repeated
+observed HTTP 429 responses. The packaged tombstone prevents old discovery,
+provider objects and policy bundles from restoring it. Current configuration,
+setup guidance, examples, leaderboard rows and generated assets no longer
+advertise it. Public publication removes retired rows from incoming snapshots
+and retained status history, and CLI counts use the same filter.
+
+The remaining compatibility catalog has 12 providers, 117 chat models and two
+reviewed embedding routes. RAG now requires configured Mistral or Cloudflare
+credentials plus current free-account evidence. G12's dated no-key container
+proof below records an earlier state and is superseded for current setup; its
+obsolete script was removed. Historical audit evidence and issue fingerprints
+remain unchanged.
+
+The earlier OVH speech classifier described below was removed with provider
+support. An isolated public snapshot after retirement observed two successful
+anonymous providers and one evidence skip, with no OVH request or status row.
+
+Validation also reproduced a checkpoint ID collision: the previous second-level
+timestamp plus 16 random bits yielded duplicate paths. The random suffix now
+uses 128 bits within the existing filename limit. A deterministic shared-prefix
+regression proves distinct paths, and legacy short IDs still resume saved answers.
+
+Validation: all 3,801 warning-strict tests and 14 subtests passed. Independent
+package coverage gates passed at 88.75% lines and 80.90% branches (80%/70%
+floors). Ruff, maintained strict type checks, catalog/policy/count/docs/asset
+checks, proxy stress and build/twine/fresh-wheel smoke passed. Three independent
+plan reviewers approved the retirement and validation-discovered amendments;
+independent implementation reviews returned SHIP. Source version 0.14.7 ships
+policy revision 16 with minimum client 0.14.7.
+
 ## Maintenance follow-up — 2026-09-29
 
 Completed the remaining Aion/ModelScope retirement cleanup in setup guidance,
@@ -753,8 +786,9 @@ Done when:
 - [x] Full suite + gates pass.
 - [x] Commit + push; G13 goal created in the same turn.
 
-Evidence (`scripts/rag_container_test.sh`, 2026-09-19, 11s elapsed,
-no keys, no state mounts):
+Historical evidence (superseded by the OVH retirement follow-up above):
+`scripts/rag_container_test.sh` was the script used on 2026-09-19, 11s elapsed,
+no keys, no state mounts:
 `Indexed 3 chunks from 3 file(s) (embeddings: Qwen3-Embedding-8B)`
 `Cuttlefish change color in milliseconds using pigment sacs called chromatophores [1].`
 `Sources (llm7/codestral-latest): [1] fish.txt (chunk 0, score 0.86) ...`

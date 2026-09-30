@@ -129,7 +129,7 @@ def test_checkable_set_equality_tripwire():
     ("groq", True), ("gemini", True), ("cloudflare", True),
     ("openrouter", False), ("nvidia", False),
     ("ollama", False), ("vercel", False),
-    ("llm7", False), ("kilo", False), ("ovh", False), ("opencode", False),
+    ("llm7", False), ("kilo", False), ("opencode", False),
 ])
 def test_is_listing_checkable_registry_spot(pid, expected):
     assert d.is_listing_checkable(load_registry()[pid]) is expected

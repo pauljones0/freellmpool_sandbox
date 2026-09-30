@@ -1,15 +1,23 @@
 # $0 RAG in a box: `rag index` + `rag ask`
 
-Two commands index a folder and answer questions over it, entirely on
-free routes with an embedded SQLite vector store. No backend, no vector
-DB, no bill — and no new dependencies (stdlib `sqlite3` only).
+Two commands index a folder and answer questions over it using eligible free
+routes and an embedded SQLite vector store. Embeddings require configured
+Mistral or Cloudflare credentials and current reviewed free-account evidence.
+There is no keyless embedding route. The local vector store uses stdlib `sqlite3`.
+
+## Configure a reviewed embedding provider
+
+Use normal setup to supply credentials and verify the account requirements.
+Account evidence must establish eligibility for the reviewed free allowance;
+an API key or successful model listing alone does not establish it.
 
 ```sh
-# one-time keyless discovery (no API keys needed)
-freellmpool update --provider ovh --provider opencode --provider llm7
+# configure Mistral's reviewed free account and credentials
+freellmpool setup --provider mistral
+freellmpool update --provider mistral --provider llm7
 
 # index a folder of .md/.txt/.rst files
-freellmpool rag index ./docs
+freellmpool rag index ./docs --embed-model mistral/mistral-embed
 
 # ask — answer cites its sources
 freellmpool rag ask "How do cuttlefish change color?"
@@ -33,20 +41,17 @@ the retrieved sources with cosine scores regardless.
 
 Honest failure modes: an empty store tells you to index first; a thin
 embedding or chat bench surfaces the normal exhaustion error naming
-the gap (`freellmpool status` / `verify` to investigate).
+the gap (`freellmpool status` / `verify` to investigate). No eligible embedding route
+is available when the required credentials or current free-account evidence are
+missing. Complete setup before indexing; account and source evidence can expire.
 
 `rag index` embeds with the leaderboard winner by default (Cloudflare
 bge-small, measured 2026-09-19 — see
-[free-embedding-leaderboard](https://0xzr.github.io/freellmpool/free-embedding-leaderboard.html),
+[free-embedding-leaderboard](https://pauljones0.github.io/freellmpool_sandbox/free-embedding-leaderboard.html),
 re-measure with `freellmpool rag leaderboard`). Prefer another route?
 `rag index --embed-model mistral/mistral-embed` (`MISTRAL_API_KEY`) or
-any other configured embedder.
-
-## Clean-container proof
-
-`scripts/rag_container_test.sh` builds the stock image, runs discovery
-→ index → ask with no keys and no state, and asserts a correct cited
-answer. Verified 2026-09-19: PASS in 11s.
+the configured Cloudflare route after `freellmpool setup --provider cloudflare`.
+The leaderboard retains dated measurements; it does not supply account evidence.
 
 ## Manual recipe (appendix)
 
@@ -67,7 +72,7 @@ import time
 import urllib.request
 
 BASE = "http://localhost:8080/v1"
-EMBED_MODEL = "ovh/Qwen3-Embedding-8B"  # keyless
+EMBED_MODEL = "mistral/mistral-embed"  # requires the reviewed account setup above
 CHAT_MODEL = "auto"
 
 DOCS = [
@@ -134,4 +139,4 @@ python3 rag_quickstart.py
 
 Expected: the cuttlefish doc ranks first by a wide margin and the answer
 repeats its sentence. Batch texts into as few `/embeddings` calls as you
-can — keyless routes pace anonymous callers (hence the one polite retry).
+can — embeddings consume the selected provider's shared free allowance.

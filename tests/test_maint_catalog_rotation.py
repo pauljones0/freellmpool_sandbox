@@ -19,11 +19,15 @@ GET of each provider's reviewed discovery URL). Row dicts carry the exact fields
 the grant gates consume; live bodies carry descriptions/dates/benchmarks
 alongside, which admission does not consume.
 
+These are dated observations, not current OVH support. OVH, Aion and ModelScope
+have since been retired; their immutable issue fingerprints and catalog evidence
+remain provenance, and their current-catalog assertions prove retirement.
+
 This module pins the verdicts following tests/test_maint_close_reviewed_16.py:
 every recorded fingerprint recomputes under the repo's own fingerprint
 function, the batch verifier reports `unchanged` (closable as reviewed) for
-all 9 against a current report, and per-issue admission proofs show discovery
-already handles each rotation with no grant change and no eligibility expansion.
+all 9 against the recorded report, and surviving-provider admission proofs show
+discovery handles each rotation with no grant change or eligibility expansion.
 """
 
 from __future__ import annotations
@@ -106,7 +110,7 @@ OVH_ROWS: list[dict[str, Any]] = [
      "context_length": 262144, "max_completion_tokens": 262144},
 ]
 
-# The 11 OVH chat models the packaged bootstrap must list after the #126 fix:
+# The 11 OVH chat models the historical bootstrap listed after the #126 fix:
 # every one is present in the live body above; removed Qwen3-32B is gone.
 OVH_BOOTSTRAP_CHAT = [
     "Meta-Llama-3_3-70B-Instruct", "Qwen3.5-397B-A17B", "gpt-oss-120b",
@@ -311,33 +315,21 @@ def test_121_modelscope_withdrawn_no_free_model_query() -> None:
     assert "no queryable free-model list" in tombstone["reason"]
 
 
-def test_125_ovh_embedding_matches_only_the_free_embedding_grant() -> None:
-    spec = _registry("ovh")
-    assert spec["grants"][1]["model_selector"]["models"] == ["Qwen3-Embedding-8B"]
-    models = d.normalize_models("ovh", {"data": OVH_ROWS})
-    by_id = {model["id"]: model for model in models}
-    assert by_id["Qwen3-Embedding-8B"]["modalities"] == ["embedding"]
-    assert fp.model_matches_grant(spec["grants"][0], by_id["Qwen3-Embedding-8B"]) is False
-    assert fp.model_matches_grant(spec["grants"][1], by_id["Qwen3-Embedding-8B"]) is True
-    # Controls: unlisted bge stays out of every grant; chat neighbor stays in chat.
-    assert all(fp.model_matches_grant(grant, by_id["bge-m3"]) is False
-               for grant in spec["grants"])
-    assert fp.model_matches_grant(spec["grants"][0], by_id["Qwen3.6-27B"]) is True
-    admitted = {model["id"] for model in d.free_catalog_models(spec, models)}
-    assert admitted == {"Qwen3-Embedding-8B", "Qwen3.6-27B"}
-    # The bootstrap embedder already pins the reviewed route: no change needed.
-    assert [model.name for model in
-            next(e for e in load_embedders() if e.id == "ovh").models] == [
-        "Qwen3-Embedding-8B"]
+def test_125_ovh_embedding_is_retired_without_rewriting_reviewed_fingerprint() -> None:
+    reviewed = next(row for row in RECORDED if row["issue"] == 125)
+    assert reviewed["subject"] == "Qwen3-Embedding-8B"
+    assert _finding_row(reviewed)["fingerprint"] == reviewed["reviewed_fp"]
+    assert "ovh" not in load_registry()
+    assert "ovh" not in {embedder.id for embedder in load_embedders()}
+    packaged = json.loads(Path("src/freellmpool/provider_registry.json").read_text())
+    assert any(tombstone["id"] == "ovh" for tombstone in packaged["tombstones"])
 
 
-def test_126_ovh_bootstrap_drops_removed_qwen3_32b() -> None:
+def test_126_ovh_bootstrap_is_retired_but_dated_catalog_evidence_is_preserved() -> None:
     assert "Qwen3-32B" not in OVH_LIVE_IDS
     assert len(OVH_LIVE_IDS) == 24
-    names = [model.name for model in
-             next(p for p in load_catalog() if p.id == "ovh").models]
-    assert "Qwen3-32B" not in names
-    assert sorted(names) == sorted(OVH_BOOTSTRAP_CHAT)
+    assert "ovh" not in {provider.id for provider in load_catalog()}
+    assert "ovh" not in load_registry()
 
 
 def test_130_openrouter_removed_free_route_is_absent_and_unpinned() -> None:

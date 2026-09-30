@@ -130,6 +130,37 @@ def append_history(history: list[dict[str, Any]], snapshot: dict[str, Any]) -> l
     return [*history, snapshot][-HISTORY_LIMIT:]
 
 
+def _retired_provider_ids() -> set[str]:
+    """Packaged tombstones alone decide which provider readings are obsolete."""
+    from .provider_registry import REGISTRY_PATH
+
+    document = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    return {row["id"] for row in document.get("tombstones", [])}
+
+
+def _retired_target(target: str, retired: set[str]) -> bool:
+    return target.partition("/")[0].casefold() in retired
+
+
+def filter_retired_rows(rows: list[HealthRow]) -> list[HealthRow]:
+    """Filter full provider IDs, preserving unrelated names containing that ID."""
+    retired = _retired_provider_ids()
+    return [row for row in rows if not _retired_target(row.target, retired)]
+
+
+def _filter_retired_history(history: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    retired = _retired_provider_ids()
+    result = []
+    for entry in history:
+        rows = entry.get("rows")
+        if not isinstance(rows, list):
+            result.append(entry)
+            continue
+        result.append({**entry, "rows": [row for row in rows if not isinstance(row, dict)
+                                        or not _retired_target(str(row.get("target", "")), retired)]})
+    return result
+
+
 def assert_no_key_material(text: str) -> None:
     """Fail closed if ``text`` matches known secret shapes."""
     for pattern in _SECRET_PATTERNS:
@@ -313,10 +344,10 @@ def publish_status(docs_dir: str | Path, rows: list[HealthRow], *,
     docs.mkdir(parents=True, exist_ok=True)
     safe_rows = [
         HealthRow(row.target, row.status, row.latency_ms, redact_text(row.note)[0])
-        for row in rows
+        for row in filter_retired_rows(rows)
     ]
     snapshot = build_snapshot(safe_rows, generated_at=generated_at, version=version)
-    history = append_history(_load_history(docs / STATUS_HISTORY_NAME), snapshot)
+    history = append_history(_filter_retired_history(_load_history(docs / STATUS_HISTORY_NAME)), snapshot)
     page_text = render_status_html(snapshot, history)
     history_text = json.dumps(history, indent=2, sort_keys=True) + "\n"
     assert_no_key_material(page_text)

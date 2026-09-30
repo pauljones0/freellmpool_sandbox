@@ -31,7 +31,7 @@ If the proxy sets `FREELLMPOOL_PROXY_KEY`, pass it as `api_key`
 | `stream=True` | SSE `chat.completion.chunk` + `[DONE]` (verified) |
 | `stream_options={"include_usage": True}` | accepted; usage on streams is estimated client-side by LiteLLM (authoritative spend stays in the gateway ledger) |
 | `response_format`, `tools`/`tool_choice` | pass through; tool-call SSE deltas carry per-call `index` (verified) |
-| `litellm.embedding(model="openai/...")` | `/v1/embeddings` incl. `openai/auto` (verified, dim=4096 OVH / 384 Cloudflare) |
+| `litellm.embedding(model="openai/...")` | `/v1/embeddings` incl. `openai/auto` (reviewed account required; dim=1024 Mistral / 384 Cloudflare) |
 | `temperature/top_p/stop/max_tokens` | pass through (verified) |
 | `response.usage` / cost callbacks | `prompt/completion/total_tokens` present on non-stream replies (verified: 19/13/32) |
 

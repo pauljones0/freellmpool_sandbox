@@ -416,57 +416,55 @@ def test_public_refresh_normalizes_filter_and_flushes_before_cleanup_on_error(mo
     assert not captured[0].exists()
 
 
-def test_public_ovh_health_probe_normalizes_speech_first_catalog_before_model_selection(monkeypatch) -> None:
-    from datetime import UTC, datetime
+def test_public_refresh_rejects_retired_ovh_before_network_or_state(monkeypatch) -> None:
+    from freellmpool import discovery, status_page
 
-    from freellmpool import discovery, provider_registry, status_page
-    from freellmpool.client import HTTPResult
-    from freellmpool.managed import ManagedPool
+    def forbidden(*args, **kwargs):
+        pytest.fail("retired OVH must not refresh or create state")
 
-    now = datetime.now(UTC).isoformat()
-    calls = []
-    registry = provider_registry.load_registry()
+    monkeypatch.setattr(discovery, "refresh_catalog", forbidden)
+    monkeypatch.setattr(discovery, "refresh_evidence", forbidden)
+    monkeypatch.setattr(status_page.tempfile, "TemporaryDirectory", forbidden)
+    with pytest.raises(ValueError, match="provider"):
+        status_page.collect_public_rows(providers=["ovh"])
 
-    def refresh_catalog(env, providers, *, path, **kwargs):
-        assert providers == ["ovh"]
-        models = discovery.normalize_models("ovh", {"data": [
-            {"id": "nvr-tts-es-es", "owned_by": "NVIDIA Riva", "context_length": 0,
-             "max_completion_tokens": 0, "pricing": {"prompt": "0", "completion": "0"}},
-            {"id": "Qwen3.6-27B", "context_length": 262144, "max_completion_tokens": 262144,
-             "pricing": {"prompt": "0.00000047", "completion": "0.00000319"}},
-        ]})
-        snapshot = {"schema": 1, "generation": "ovh-modality-test", "updated_at": now,
-                    "providers": {"ovh": {"status": "ok", "complete": True,
-                                          "checked_at": now, "models": models}}}
-        Path(path).write_text(json.dumps(snapshot))
-        return snapshot
 
-    def check_sources(providers, **kwargs):
-        assert providers == ["ovh"]
-        return {"checked_at": now, "sources": [
-            {"url": source["url"], "status": "ok", "checked_at": now,
-             "sha256": source["source_hash"]["sha256"]}
-            for source in registry["ovh"]["evidence"]]}
+def test_publish_prunes_retired_incoming_and_history_rows_using_exact_provider_ids(tmp_path: Path) -> None:
+    history = [{"schema": 1, "generated_at": "2026-09-28T00:00:00Z", "freellmpool": "0.14.6",
+                "rows": [{"target": target, "status": "ok", "latency_ms": 1, "note": "old"}
+                         for target in ("ovh", "ovh/Qwen3.6-27B", "aion/model", "modelscope/model",
+                                        "github/model", "llm7/model", "ovh-other/model", "other/ovh-model")]}]
+    original = json.loads(json.dumps(history))
+    (tmp_path / "status-history.json").write_text(json.dumps(history))
+    incoming = [HealthRow(target, "ok", 1, "current") for target in
+                ("ovh/model", "llm7/model", "ovh-other/model", "other/ovh-model")]
+    page, path = publish_status(tmp_path, incoming, generated_at="2026-09-30T00:00:00Z", version="0.14.7")
+    result = json.loads(path.read_text())
+    expected_targets = ["llm7/model", "ovh-other/model", "other/ovh-model"]
+    assert [row["target"] for row in result[0]["rows"]] == expected_targets
+    assert [row["target"] for row in result[-1]["rows"]] == expected_targets
+    assert result[0]["generated_at"] == original[0]["generated_at"]
+    assert result[0]["freellmpool"] == original[0]["freellmpool"]
+    assert result[0]["rows"] == original[0]["rows"][-3:]
+    assert "ovh/model" not in page.read_text()
 
-    original_init = ManagedPool.__init__
 
-    def init(pool, *args, **kwargs):
-        original_init(pool, *args, **kwargs)
+def test_cli_retired_rows_are_filtered_before_publication_counts(tmp_path: Path, capsys) -> None:
+    from freellmpool.cli import main
 
-        def post(url, headers, body, timeout):
-            calls.append(body["model"])
-            assert "Authorization" not in headers
-            if body["model"].startswith("nvr-tts-"):
-                return HTTPResult(404, {"error": {"message": "speech endpoint is not chat"}}, "")
-            return HTTPResult(200, {"choices": [{"message": {"content": "OK"}}],
-                                    "usage": {"prompt_tokens": 1, "completion_tokens": 1}}, "")
+    rows = [{"target": "ovh/model", "status": "ok", "note": "retired"},
+            {"target": "aion", "status": "skipped", "note": "retired"},
+            {"target": "llm7/model", "status": "fail", "note": "current"}]
+    source = tmp_path / "rows.json"
+    source.write_text(json.dumps(rows))
+    docs = tmp_path / "docs"
+    assert main(["status-page", "publish", "--rows-file", str(source), "--docs-dir", str(docs)]) == 0
+    assert "0/1 ok among attempted probes, 0 skipped" in capsys.readouterr().out
+    assert [row["target"] for row in json.loads((docs / "status-history.json").read_text())[-1]["rows"]] == ["llm7/model"]
 
-        pool._post = post
 
-    monkeypatch.setattr(discovery, "refresh_catalog", refresh_catalog)
-    monkeypatch.setattr(discovery, "check_public_sources", check_sources)
-    monkeypatch.setattr(ManagedPool, "__init__", init)
-    rows = status_page.collect_public_rows(providers=["ovh"], timeout=2)
-    assert len(rows) == 1 and rows[0].status == "ok"
-    assert rows[0].target == "ovh/Qwen3.6-27B"
-    assert calls == ["Qwen3.6-27B"]
+def test_retirement_pruning_preserves_history_without_rows(tmp_path: Path) -> None:
+    history = [{"schema": 1, "generated_at": "2026-09-28T00:00:00Z", "freellmpool": "0.14.6"}]
+    (tmp_path / "status-history.json").write_text(json.dumps(history))
+    _, output = publish_status(tmp_path, [], generated_at="2026-09-30T00:00:00Z", version="0.14.7")
+    assert json.loads(output.read_text())[0] == history[0]

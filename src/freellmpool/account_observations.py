@@ -59,7 +59,6 @@ _ENDPOINTS = {
 _OLLAMA_USAGE = _Endpoint("https://ollama.com/api/usage", "GET", "OLLAMA_API_KEY")
 _UNSUPPORTED = {
     "llm7": "No reviewed account endpoint; anonymous IP limits use local accounting.",
-    "ovh": "No reviewed account endpoint; anonymous IP/model limits use local accounting.",
     "kilo": "No reviewed account allowance endpoint; catalog prices do not establish remaining quota.",
     "opencode": "No reviewed account allowance endpoint; anonymous usage outside this gateway is unknown.",
     "groq": "Remaining RPD/TPM are observed from normal response headers; account metrics API requires Enterprise access.",

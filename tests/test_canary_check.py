@@ -107,8 +107,8 @@ def test_eligibility_exclusion_reasons():
     assert eligible("ollama") is False
     # groq: listing-checkable keeps the GET-only path.
     assert eligible("groq") is False
-    # ovh: no credential_env — no key to judge.
-    assert eligible("ovh") is False
+    # kilo: no credential_env — no key to judge.
+    assert eligible("kilo") is False
     # Unconfigured slot is missing, never canaried.
     assert eligible("openrouter", env={"OPENROUTER_API_KEY": ""}) is False
     # Registry-external providers have no reviewed local entry.

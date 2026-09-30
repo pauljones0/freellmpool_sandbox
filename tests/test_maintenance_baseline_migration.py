@@ -232,3 +232,17 @@ def test_historical_contents_response_is_bounded_and_exact(field, value):
     api.json = response
     with pytest.raises(ValueError):
         fetch.fetch_baseline(api, current_run_id=10)
+
+
+def test_ovh_owner_retirement_prunes_catalog_findings_incidents_and_proposals():
+    document = empty_baseline()
+    historical = historical_document()
+    if not any(row['id'] == 'ovh' for row in historical['providers']):
+        historical['providers'].append({'id': 'ovh', 'evidence': [{'id': 'terms', 'url': 'https://ovh.example/terms'}]})
+    ovh = next(row for row in historical['providers'] if row['id'] == 'ovh')
+    url = ovh['evidence'][0]['url']
+    document['providers']['ovh'] = {'checked_at': NOW, 'models': {'stale/model': {'input': '0'}}}
+    document['pending_changes'] = [maintenance._finding('ovh', 'limit_changed', 'tokens/model', before=10, after=20, source_url=url)]
+    document['incidents'] = [maintenance._finding('ovh', 'source_check_failed', 'terms', source_url=url)]
+    document['proposals'] = [proposal('ovh', url)]
+    assert maintenance.migrate_public_baseline(document, historical) == empty_baseline()

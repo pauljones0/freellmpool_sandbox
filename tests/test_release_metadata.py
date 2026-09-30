@@ -20,7 +20,7 @@ def test_release_metadata_versions_match_package() -> None:
     demo = (ROOT / "assets" / "demo.svg").read_text()
     legacy = (ROOT / "docs/legacy-0.13-guide.md").read_text()
 
-    assert version == "0.14.6"
+    assert version == "0.14.7"
     assert __version__ == version
     legacy_version = "0.13.0"
     assert server["version"] == legacy_version
@@ -162,7 +162,7 @@ def test_vercel_free_catalog_keeps_acceptance_claims_bound_to_recorded_evidence(
     assert "No completion was returned and this is not acceptance evidence" in compact
 
     accounts = (ROOT / "docs/ACCOUNTS.md").read_text()
-    guidance = accounts.split("### Vercel AI Gateway", 1)[1].split("### OVHcloud", 1)[0]
+    guidance = accounts.split("### Vercel AI Gateway", 1)[1].split("### Kilo Gateway", 1)[0]
     assert "customer verification" in guidance.casefold()
     assert "After Vercel has cleared" in guidance
     assert "Only the currently price-verified zero-price" in guidance

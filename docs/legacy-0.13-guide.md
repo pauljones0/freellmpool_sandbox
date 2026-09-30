@@ -1,6 +1,6 @@
 # Archived 0.13 compatibility guide
 
-This is the former README, retained for historical API/plugin instructions and dated comparisons. Its fixed catalog counts, keyless quickstart timing, paid/trial eligibility, advisory quotas, and release assertions do not describe the maintained gateway rewrite. The maintained registry admits chat plus three reviewed embedding routes (see provider-registry.md); historical transcription examples do not establish supported free routes. Start with the [current setup](../README.md).
+This is the former README, retained for historical API/plugin instructions and dated comparisons. Its fixed catalog counts, keyless quickstart timing, paid/trial eligibility, advisory quotas, and release assertions do not describe the maintained gateway rewrite. The maintained registry admits chat plus two reviewed embedding routes requiring credentials and account evidence (see provider-registry.md); historical transcription examples do not establish supported free routes. Start with the [current setup](../README.md).
 
 # freellmpool
 
@@ -8,11 +8,11 @@ This is the former README, retained for historical API/plugin instructions and d
 
 ![freellmpool tokenmax terminal demo](../assets/demo.svg)
 
-![128 enabled chat routes, 13 LLM providers cataloged, keyless start when available](../assets/tokenmax-results.svg)
+![117 enabled chat routes, 12 LLM providers cataloged, keyless start when available](../assets/tokenmax-results.svg)
 
-freellmpool catalogs 13 LLM providers as distinct groups spanning recurring
+freellmpool catalogs 12 LLM providers as distinct groups spanning recurring
 free tiers, keyless endpoints, finite trials, pin-only routes, and disabled
-candidates. It exposes 128 enabled chat routes and 128 cataloged chat models,
+candidates. It exposes 117 enabled chat routes and 117 cataloged chat models,
 and automatically pools only
 enabled routes you can access behind one OpenAI-compatible endpoint — as a CLI,
 a Python library, or a local proxy. It can start without credentials when an
@@ -66,7 +66,7 @@ explicit finite-trial or disabled candidates. Eligibility and limits differ by
 provider. freellmpool automatically uses only enabled routes you can access,
 fails over when one is rate limited or down, and tracks local per-day usage.
 
-Several providers (OVHcloud and Kilo Gateway) need no API key,
+Kilo Gateway needs no API key,
 and LLM7 works without one, so the quickstart can answer without signup when a
 keyless provider is available.
 
@@ -415,7 +415,6 @@ $ freellmpool benchmark
   provider/model            status   latency  note
   cerebras/gpt-oss-120b     ok        180 ms  6 tok
   groq/openai/gpt-oss-20b   ok        240 ms  6 tok
-  ovh/Meta-Llama-3_3-70B-Instruct  FAIL    -  HTTP 429
 ```
 
 ## Capacity & provider health
@@ -551,7 +550,6 @@ payment-method caveats, are in
 
 | Provider | Env var | Notes |
 |---|---|---|
-| OVHcloud | — | no key needed (anonymous tier) |
 | Kilo Gateway | — | no key needed |
 | LLM7 | `LLM7_API_KEY` | optional |
 | Groq | `GROQ_API_KEY` | current free-plan routes; exact limits vary by model |
@@ -699,7 +697,7 @@ deployment.
 
 **Is there a free, OpenAI-compatible LLM API gateway?** Yes — freellmpool is a
 free, MIT-licensed gateway that exposes one OpenAI-compatible endpoint over the
-enabled routes you can access. Its 13 cataloged provider groups span recurring
+enabled routes you can access. Its 12 cataloged provider groups span recurring
 free tiers, keyless endpoints, finite trials, pin-only routes, and disabled
 candidates. `pip install freellmpool` and point any OpenAI client at the local
 proxy.
@@ -718,7 +716,7 @@ through the Anthropic bridge. See `freellmpool code <agent>`. (Claude Code path 
 experimental: text + tools, no vision.)
 
 **Do I need an API key?** Not while an enabled keyless route is available:
-OVHcloud and Kilo Gateway expose keyless routes, and LLM7 is
+Kilo Gateway exposes keyless routes, and LLM7 is
 key-optional. Add applicable free-tier or trial credentials for more routes and
 capacity; availability and terms remain provider-specific.
 
@@ -727,7 +725,7 @@ capacity; availability and terms remain provider-specific.
 
 ## Featured in
 
-- Community videos (Spanish, by lytohlg AI): ["Accede a 18 modelos de IA GRATIS con 1 solo comando"](https://www.youtube.com/watch?v=1UfIlWoedho) and ["Prueba 18 IAs GRATIS sin API key en 30 segundos"](https://www.youtube.com/watch?v=oaM_E92WVGQ) (from an earlier catalog; freellmpool now catalogs 13 providers).
+- Community videos (Spanish, by lytohlg AI): ["Accede a 18 modelos de IA GRATIS con 1 solo comando"](https://www.youtube.com/watch?v=1UfIlWoedho) and ["Prueba 18 IAs GRATIS sin API key en 30 segundos"](https://www.youtube.com/watch?v=oaM_E92WVGQ) (from an earlier catalog; freellmpool now catalogs 12 providers).
 - Directory: [FreeLLM Pool on MCP Market](https://mcpmarket.com/server/freellm-pool).
 
 ## Contributing

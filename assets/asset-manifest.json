@@ -10,16 +10,16 @@
   },
   "assets": {
     "demo": {
-      "svg_sha256": "395127e9a8c7a9abc7153c705689639a1b657f231016c09f25e88e6e4a064094",
-      "png_sha256": "a3f215558c4945dbfcde6ea45ecf25514c857dba1f2ff3df95e8a57bee87b5ad"
+      "svg_sha256": "2e8cadb35a6b25652e699a6c57484085843e8e75ac54ff76ae34faec4aae9b6f",
+      "png_sha256": "df555901a84962cd30f0afd98a507d947a2ad0424e731d6763ca5caa09e9ab1b"
     },
     "social-preview": {
-      "svg_sha256": "be0dc71daddce458dbacdcc6b044aec4b79ff3649313693f2eac3186ed2a20df",
-      "png_sha256": "ba9d99f511620e15269362465a5495fbbc6c33cbca90668797aa30d150e1c0d5"
+      "svg_sha256": "bb32f40ecfbaa4807c079d8a321d2e0890e999d3ecf5deda3c7d7a8e855ad643",
+      "png_sha256": "59a90684e0d08c029e76bcd6052c45c1276b5be1d554354bab36b723b1d5a85e"
     },
     "tokenmax-results": {
-      "svg_sha256": "39067edb4032d5354a2db6f19cdfa3c5bfb41e35e1696792ba62f2b9f9c0b60c",
-      "png_sha256": "4c63e58f6a37926c48b96a96256bec7c0856e8accb57d77f21942e579c1404a3"
+      "svg_sha256": "f64467dc708688e0bb35d28cc72ca5ffe7b40cfba0be1e01ef8952d7c46e62b3",
+      "png_sha256": "677297f9ef1f712180978e80654532321bdd7474103211967f29868b3c1ea01e"
     }
   }
 }

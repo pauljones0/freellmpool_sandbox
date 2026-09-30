@@ -67,13 +67,12 @@ substituted for the dedicated Admin credential.
 
 ## Coverage and unknowns
 
-The reviewed policy registry contains 16 provider records. Unsupported checks are explicit
+The reviewed policy registry contains 13 provider records. Unsupported checks are explicit
 and do not send provider keys or create recurring attention items.
 
 | Provider | Free allowance observation coverage |
 | --- | --- |
 | LLM7 | Anonymous IP usage outside this gateway remains unknown |
-| OVHcloud | Anonymous IP/model usage outside this gateway remains unknown |
 | Kilo | No reviewed account allowance endpoint |
 | OpenCode | No reviewed account allowance endpoint |
 | OpenRouter | Monetary key telemetry; free-request allowance and local accounting remain separate |

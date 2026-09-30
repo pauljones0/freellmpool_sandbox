@@ -11,7 +11,7 @@ session sidebar and on the home screen — showing, in real time, how much your 
 │ 50 tokens served free · 13 req    │
 │ ── provider race ──               │
 │ 🥇 llm7       ██████████ 9 ⏳53s  │
-│ 🥈 ovh        ████░░░░░░ 4        │
+│ 🥈 llm7       ████░░░░░░ 4        │
 │ 🥉 groq       █░░░░░░░░░ 1/1000   │
 │ latency ███████▇▇▇▇▇ 124ms        │
 │ last: groq/openai/gpt-oss-120b    │

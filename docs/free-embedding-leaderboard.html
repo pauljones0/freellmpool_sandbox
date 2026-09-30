@@ -54,12 +54,12 @@ keyword-trap distractors — scored through the gateway itself.</strong> Winner 
 <tr><th>#</th><th>Route</th><th>Recall@3</th><th>MRR</th><th>Dims</th><th>Time</th></tr>
 <tr><td class="num">1</td><td>cloudflare / bge-small-en-v1.5</td><td class="num">1.000</td><td class="num">1.000</td><td class="num">384</td><td class="num">812 ms</td></tr>
 <tr><td class="num">2</td><td>mistral / mistral-embed</td><td class="num">1.000</td><td class="num">0.950</td><td class="num">1024</td><td class="num">2,803 ms</td></tr>
-<tr><td class="num">3</td><td>ovh / Qwen3-Embedding-8B</td><td class="num">1.000</td><td class="num">0.950</td><td class="num">4096</td><td class="num">3,443 ms</td></tr>
 </table>
 <div class="note">Ranks by recall@3, then MRR; exact ties break by measured latency.
-Mistral and OVH tied on accuracy (1.000 / 0.950) — Mistral ranks second on speed.
-An earlier OVH run hit its daily allowance cap mid-benchmark and was re-measured
-clean; failed routes score 0 rather than silently dropping out.</div>
+The table retains dated measurements for the two currently reviewed routes.
+Both require configured credentials and current reviewed free-account evidence;
+these measurements do not establish today's availability. Failed routes score
+0 rather than silently dropping out.</div>
 
 <h2>Method</h2>
 <p>24 fixed documents (12 topical passages + 12 keyword-trap distractors sharing
@@ -70,7 +70,10 @@ Fixture: <code>src/freellmpool/rag_bench_fixture.json</code> (v1, committed, fix
 
 <h2>RAG uses the winner by default</h2>
 <p><code>freellmpool rag index</code> embeds with the leaderboard winner unless
-<code>--embed-model</code> overrides it:</p>
+<code>--embed-model</code> overrides it. First configure a reviewed free account
+with <code>freellmpool setup --provider cloudflare</code> or
+<code>freellmpool setup --provider mistral</code>; a fresh keyless install has
+no eligible embedding route. See the <a href="RAG_QUICKSTART.md">RAG setup guide</a>.</p>
 <pre><code>$ freellmpool rag index ./notes --store /tmp/demo.sqlite3
 Indexed 1 chunks from 1 file(s) (embeddings: @cf/baai/bge-small-en-v1.5)</code></pre>
 

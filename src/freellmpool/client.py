@@ -850,7 +850,7 @@ def _call_openai(
 
     url = f"{base_url}/chat/completions"
     headers = {"Content-Type": "application/json"}
-    if api_key:  # keyless providers (e.g. OVH anonymous) send no auth header
+    if api_key:  # Anonymous providers send no authorization header.
         headers["Authorization"] = f"Bearer {api_key}"
     body = {
         "model": model,

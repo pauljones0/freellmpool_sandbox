@@ -75,6 +75,11 @@ def test_packaged_catalog_omits_retired_github_models():
     assert "github" not in {embedder.id for embedder in load_embedders()}
 
 
+def test_packaged_catalog_omits_retired_ovh_in_every_modality():
+    for catalog in (load_catalog(), load_embedders(), load_transcribers()):
+        assert "ovh" not in {provider.id for provider in catalog}
+
+
 def test_packaged_catalog_omits_modelscope_and_pruned_minimax():
     assert "modelscope" not in {provider.id for provider in load_catalog()}
     assert "aion" not in {provider.id for provider in load_catalog()}
@@ -88,10 +93,10 @@ def test_packaged_catalog_omits_modelscope_and_pruned_minimax():
 
 
 def test_keyless_providers_always_configured():
-    # OVH (auth=none) and LLM7 (key_optional) are usable with an empty env.
+    # Kilo (auth=none) and LLM7 (key_optional) are usable with an empty env.
     catalog = load_catalog()
     ids = {p.id for p in configured_providers(catalog, {})}
-    assert "ovh" in ids  # keyless
+    assert "kilo" in ids  # keyless
     assert "llm7" in ids  # key optional
     assert "groq" not in ids  # needs a key
 
@@ -132,7 +137,7 @@ def test_configured_filter_by_env():
     ids = {p.id for p in configured_providers(catalog, {"GROQ_API_KEY": "x"})}
     assert "groq" in ids
     assert "gemini" not in ids  # no key → excluded
-    assert "ovh" in ids  # keyless → always present
+    assert "kilo" in ids  # keyless → always present
 
 
 def test_cloudflare_requires_extra_env():

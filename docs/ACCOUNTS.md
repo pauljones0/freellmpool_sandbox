@@ -6,7 +6,7 @@ require customer/card verification even for a zero-price route. You don't need
 every provider — even **one** key gets you going. Start with Groq, then add
 Gemini or another provider for failover.
 
-> **No keys at all?** **OVHcloud** and **Kilo Gateway** expose
+> **No keys at all?** **Kilo Gateway** exposes
 > keyless routes, and **LLM7** works without a key. Therefore
 > `freellmpool ask "hi"` can answer after installation while at least one enabled
 > keyless route is available. The credentials below can add routes, capacity,
@@ -99,8 +99,8 @@ Compose will explicitly load it.
    [the dated Vercel acceptance audit](VERCEL_ACCEPTANCE_2026-08-23.md) for
    pricing, provenance, privacy, and the current public-verification status.
 
-### OVHcloud, Kilo Gateway & LLM7 — *no signup needed*
-Nothing to do — OVHcloud and Kilo Gateway are anonymous, and LLM7
+### Kilo Gateway & LLM7 — *no signup needed*
+Nothing to do — Kilo Gateway is anonymous, and LLM7
 works without a key. For higher LLM7 limits you can optionally grab a token at
 <https://token.llm7.io> and `export LLM7_API_KEY=...`.
 

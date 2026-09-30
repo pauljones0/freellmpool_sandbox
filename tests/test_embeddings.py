@@ -27,10 +27,15 @@ def _embed_body(dim: int = 3):
 
 
 REVIEWED_EMBEDDERS = {
-    "ovh": ("Qwen3-Embedding-8B",),
     "mistral": ("mistral-embed",),
     "cloudflare": ("@cf/baai/bge-small-en-v1.5",),
 }
+
+
+def test_bundled_embedders_exclude_retired_ovh_and_require_configuration():
+    catalog = load_embedders()
+    assert "ovh" not in {embedder.id for embedder in catalog}
+    assert configured_embedders(catalog, {}) == []
 
 
 def test_bundled_embedder_catalog_has_reviewed_free_routes():
