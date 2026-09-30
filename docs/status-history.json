@@ -1,31 +1,6 @@
 [
   {
     "freellmpool": "0.14.3",
-    "generated_at": "2026-09-24T11:54:27Z",
-    "rows": [
-      {
-        "latency_ms": null,
-        "note": "complete model discovery needed; run freellmpool update",
-        "status": "skipped",
-        "target": "llm7"
-      },
-      {
-        "latency_ms": null,
-        "note": "complete model discovery needed; run freellmpool update",
-        "status": "skipped",
-        "target": "kilo"
-      },
-      {
-        "latency_ms": null,
-        "note": "complete model discovery needed; run freellmpool update",
-        "status": "skipped",
-        "target": "opencode"
-      }
-    ],
-    "schema": 1
-  },
-  {
-    "freellmpool": "0.14.3",
     "generated_at": "2026-09-24T17:16:50Z",
     "rows": [
       {
@@ -289,6 +264,31 @@
         "note": "17 tok",
         "status": "ok",
         "target": "kilo/kilo-auto/free"
+      },
+      {
+        "latency_ms": null,
+        "note": "free policy evidence missing or expired",
+        "status": "skipped",
+        "target": "opencode"
+      }
+    ],
+    "schema": 1
+  },
+  {
+    "freellmpool": "0.14.7",
+    "generated_at": "2026-09-30T22:21:05Z",
+    "rows": [
+      {
+        "latency_ms": 1260.1252099999556,
+        "note": "10 tok",
+        "status": "ok",
+        "target": "kilo/kilo-auto/free"
+      },
+      {
+        "latency_ms": null,
+        "note": "free policy evidence missing or expired",
+        "status": "skipped",
+        "target": "llm7"
       },
       {
         "latency_ms": null,
