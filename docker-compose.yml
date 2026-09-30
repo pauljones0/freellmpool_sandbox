@@ -25,8 +25,6 @@ services:
       NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
       ZHIPU_API_KEY: ${ZHIPU_API_KEY:-}
       OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
-      AION_API_KEY: ${AION_API_KEY:-}
-      MODELSCOPE_API_KEY: ${MODELSCOPE_API_KEY:-}
       AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
       LLM7_API_KEY: ${LLM7_API_KEY:-}
       # Require a Bearer token from clients (recommended when exposed):

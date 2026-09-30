@@ -27,8 +27,6 @@ not encode data residency, this table says so instead of guessing.
 | `cohere` | `https://api.cohere.ai/compatibility/v1` | `COHERE_API_KEY` | Cohere policy/enterprise commitments apply; catalog does not pin a region. | Direct Cohere API using your trial/API key; training controls vary by account type and settings. |
 | `zhipu` | `https://api.z.ai/api/paas/v4` | `ZHIPU_API_KEY` | Z.ai's policy applies; catalog does not pin a region. | Direct Z.ai API; their policy says user content is processed to provide the service. |
 | `ollama` | `https://ollama.com/v1` | `OLLAMA_API_KEY` | Ollama Cloud policy/blog statements apply; catalog does not pin a region. | This is Ollama Cloud, not local Ollama. Prompts leave your machine when this provider is used. |
-| `aion` | `https://api.aionlabs.ai/v1` | `AION_API_KEY` | Aion Labs is operated by Deep Forge sp. z o.o. in Poland and routes to upstream model infrastructure. | Direct Aion API using your key; its terms permit forwarding prompts to upstream providers to deliver the service. |
-| `modelscope` | `https://api-inference.modelscope.cn/v1` | `MODELSCOPE_API_KEY` | ModelScope is an Alibaba open-model platform; the catalog does not pin an inference region. | Hosted API Inference using your token; do not assume local execution or a specific data-residency region. |
 | `vercel` | `https://ai-gateway.vercel.sh/v1` | `AI_GATEWAY_API_KEY` | Vercel AI Gateway routes requests to upstream model providers, whose jurisdictions may vary. | Extra gateway hop; Vercel and the selected upstream provider process each request. |
 
 ## Why aren't GitHub Models and LongCat included?
@@ -177,7 +175,4 @@ Provider policy links checked for this FAQ:
   <https://cohere.com/enterprise-data-commitments>
 - Z.ai: <https://docs.z.ai/legal-agreement/privacy-policy>
 - Ollama Cloud: <https://ollama.com/blog/cloud-models>
-- Aion Labs: <https://www.aionlabs.ai/terms/>,
-  <https://www.aionlabs.ai/docs/rate-limits/>
-- ModelScope API Inference: <https://modelscope.cn/docs/model-service/API-Inference>
 - Vercel AI Gateway pricing: <https://vercel.com/docs/ai-gateway/pricing>

@@ -12,6 +12,8 @@ from __future__ import annotations
 import html
 import json
 import re
+import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +25,8 @@ STATUS_SCHEMA = 1
 STATUS_PAGE_NAME = "free-tier-status.html"
 STATUS_HISTORY_NAME = "status-history.json"
 HISTORY_LIMIT = 12
+SITE_URL = "https://pauljones0.github.io/freellmpool_sandbox"
+REPOSITORY_URL = "https://github.com/pauljones0/freellmpool_sandbox"
 
 _SECRET_PATTERNS = (
     re.compile(r"sk-(?:live|proj)-[A-Za-z0-9]{8,}"),
@@ -46,6 +50,65 @@ def collect_live_rows(pool: Pool, *, model: str | None = None,
                       timeout: float = 20.0) -> list[HealthRow]:
     """Probe configured providers with a tiny live request each."""
     return run_healthcheck(pool, model=model, providers=providers, timeout=timeout)
+
+
+def collect_public_rows(*, model: str | None = None, providers: list[str] | None = None,
+                        timeout: float = 20.0) -> list[HealthRow]:
+    """Refresh and probe anonymous reviewed routes without private machine state.
+
+    Public catalogs and content-identical evidence are refreshed at the managed
+    pool's exact paths. Config, account, quota, and health state remain isolated.
+    Managed benchmark probes retain their existing 512-token reservation cap.
+    """
+    from .config import finite_float
+    from .discovery import budget_seconds, default_discovery_path, refresh_catalog, refresh_evidence
+    from .managed import ManagedPool
+    from .provider_registry import evidence_path, load_registry, resolve_provider_ids
+    from .quota import QuotaStore
+    from .stats import StatsStore
+
+    reviewed = load_registry()
+    anonymous = {pid: spec for pid, spec in reviewed.items() if spec.get("inference_auth") == "none"}
+    selected = list(anonymous)
+    if providers is not None:
+        selected, rejected = resolve_provider_ids(providers, anonymous)
+        if rejected:
+            raise ValueError("public status provider filter requires reviewed anonymous providers: "
+                             + ", ".join(rejected))
+    if not selected:
+        return []
+    with tempfile.TemporaryDirectory(prefix="freellmpool-public-status-") as temporary:
+        root = Path(temporary)
+        env = {"XDG_STATE_HOME": temporary, "FREELLMPOOL_POLICY_UPDATES": "0",
+               "FREELLMPOOL_CONFIG_FILE": str(root / "config.toml"),
+               "FREELLMPOOL_CONFIG": str(root / "providers.toml"),
+               "FREELLMPOOL_DISCOVERY_FILE": str(root / "discovery.json"),
+               "FREELLMPOOL_EVIDENCE_FILE": str(root / "evidence.json"),
+               "FREELLMPOOL_ACCOUNTS_FILE": str(root / "accounts.json"),
+               "FREELLMPOOL_ALLOWANCE_FILE": str(root / "allowances.sqlite3"),
+               "FREELLMPOOL_CONFORMANCE_FILE": str(root / "conformance.json"),
+               "FREELLMPOOL_HEALTH_FILE": str(root / "route-health.json")}
+        refresh_catalog(env, selected, public_only=True, path=default_discovery_path(env),
+                        deadline=time.monotonic() + budget_seconds(env))
+        evidence = refresh_evidence(env, selected, path=evidence_path(env), public_only=True,
+                                    time_budget_seconds=120)
+        registry = {pid: spec for pid, spec in load_registry(env).items() if pid in selected}
+        # A failed/changed public check is stricter than a still-fresh packaged
+        # stamp: this publication must not imply the latest observation passed.
+        for pid, spec in registry.items():
+            updates = evidence.get("providers", {}).get(pid, {})
+            sources = spec.get("evidence", [])
+            if any(updates.get(source["id"], {}).get("status") != "unchanged" for source in sources):
+                for source in sources:
+                    source["status"] = "review_required"
+        pool = ManagedPool(providers=[], registry=registry, accounts={}, env=env,
+                           quota=QuotaStore(path=root / "quota.json", flush_every=1, flush_interval=1),
+                           stats_store=StatsStore(root / "stats.json", flush_every=1, flush_interval=1))
+        try:
+            return collect_live_rows(pool, model=model, providers=selected,
+                                     timeout=finite_float(timeout, 20.0, minimum=0.1, maximum=30.0))
+        finally:
+            pool.flush()
 
 
 def build_snapshot(rows: list[HealthRow], *, generated_at: str, version: str) -> dict[str, Any]:
@@ -74,16 +137,17 @@ def assert_no_key_material(text: str) -> None:
             raise ValueError("refusing to publish: output contains key material")
 
 
-def _counts(rows: list[dict[str, Any]]) -> tuple[int, int]:
+def _counts(rows: list[dict[str, Any]]) -> tuple[int, int, int]:
     ok = sum(1 for row in rows if row.get("status") == "ok")
-    return ok, len(rows)
+    skipped = sum(1 for row in rows if row.get("status") == "skipped")
+    return ok, len(rows) - skipped, skipped
 
 
 def render_status_html(snapshot: dict[str, Any], history: list[dict[str, Any]]) -> str:
     """Render the full public status page for one snapshot + history."""
     generated_at = str(snapshot.get("generated_at", "unknown"))
     rows = [r for r in snapshot.get("rows", []) if isinstance(r, dict)]
-    ok, total = _counts(rows)
+    ok, attempted, skipped = _counts(rows)
     if rows:
         body_rows = "\n".join(
             "<tr><td>{target}</td><td><span class=\"pill {cls}\">{status}</span></td>"
@@ -97,7 +161,9 @@ def render_status_html(snapshot: dict[str, Any], history: list[dict[str, Any]]) 
             )
             for r in rows
         )
-        table = (f"<p><strong>{ok}/{total}</strong> providers responding.</p>\n"
+        unobserved = " No live requests were attempted; availability is unobserved." if not attempted else ""
+        table = (f"<p><strong>{ok}/{attempted}</strong> providers responding among attempted probes; "
+                 f"{skipped} skipped.{unobserved}</p>\n"
                  "<table>\n<tr><th>Provider/model</th><th>Status</th>"
                  "<th>Latency</th><th>Note</th></tr>\n"
                  f"{body_rows}\n</table>")
@@ -106,14 +172,15 @@ def render_status_html(snapshot: dict[str, Any], history: list[dict[str, Any]]) 
                  "snapshot's probes. The pool had nothing to check; this is an empty "
                  "reading, not a clean bill of health.</p>")
     history_rows = "\n".join(
-        "<tr><td>{at}</td><td class=\"num\">{ok}/{total}</td></tr>".format(
+        "<tr><td>{at}</td><td class=\"num\">{ok}/{attempted}</td><td>{skipped} skipped</td></tr>".format(
             at=html.escape(str(entry.get("generated_at", "?"))),
             ok=_counts([r for r in entry.get("rows", []) if isinstance(r, dict)])[0],
-            total=_counts([r for r in entry.get("rows", []) if isinstance(r, dict)])[1],
+            attempted=_counts([r for r in entry.get("rows", []) if isinstance(r, dict)])[1],
+            skipped=_counts([r for r in entry.get("rows", []) if isinstance(r, dict)])[2],
         )
         for entry in reversed(history)
     )
-    history_table = (f"<table>\n<tr><th>Snapshot (UTC)</th><th>Ok/total</th></tr>\n"
+    history_table = (f"<table>\n<tr><th>Snapshot (UTC)</th><th>Responding/attempted</th><th>Skipped</th></tr>\n"
                      f"{history_rows}\n</table>" if history_rows else
                      "<p>No earlier snapshots yet.</p>")
     return f"""<!doctype html>
@@ -123,7 +190,7 @@ def render_status_html(snapshot: dict[str, Any], history: list[dict[str, Any]]) 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Are the free LLM tiers working right now? (live status)</title>
 <meta name="description" content="Live-observed free LLM tier status: which providers answer probes right now, observed latency, snapshot history, and staleness labeling.">
-<link rel="canonical" href="https://0xzr.github.io/freellmpool/{STATUS_PAGE_NAME}">
+<link rel="canonical" href="{SITE_URL}/{STATUS_PAGE_NAME}">
 <meta property="og:title" content="Are the free LLM tiers working right now?">
 <meta property="og:description" content="Live probe results across free LLM providers, with snapshot history and staleness labeling.">
 <meta property="og:type" content="article">
@@ -152,20 +219,20 @@ def render_status_html(snapshot: dict[str, Any], history: list[dict[str, Any]]) 
  .pill.muted{{background:#232a39;color:#8a93a2}}
  .meta{{color:var(--mut);font-size:13px;margin-top:34px;border-top:1px solid var(--bd);padding-top:14px}}
 </style>
-<meta property="og:url" content="https://0xzr.github.io/freellmpool/{STATUS_PAGE_NAME}">
+<meta property="og:url" content="{SITE_URL}/{STATUS_PAGE_NAME}">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:image" content="https://0xzr.github.io/freellmpool/assets/social-preview.png">
-<meta name="twitter:image" content="https://0xzr.github.io/freellmpool/assets/social-preview.png">
+<meta property="og:image" content="{SITE_URL}/assets/social-preview.png">
+<meta name="twitter:image" content="{SITE_URL}/assets/social-preview.png">
 </head>
 <body>
 <div class="wrap">
 
-<p class="tag"><a href="https://0xzr.github.io/freellmpool/">freellmpool</a> &rsaquo; status</p>
+<p class="tag"><a href="{SITE_URL}/">freellmpool</a> &rsaquo; status</p>
 <h1>Are the free tiers working right now?</h1>
 
 <p class="lead"><strong>Live probe results across free LLM providers, refreshed on a
-schedule.</strong> Each snapshot below is a real tiny request sent to every configured
-provider — not a guess from docs or dashboards.</p>
+schedule.</strong> Attempted probes send a small real request to eligible providers.
+Skipped rows had no live request and do not establish whether a provider is working.</p>
 
 <div class="note" id="stale">Snapshot taken <code>{html.escape(generated_at)}</code>
 <span id="age"></span> — treat snapshots older than 12 hours as stale. Snapshots refresh
@@ -179,7 +246,7 @@ on a 6-hour schedule; intraday outages between snapshots will not appear here.</
 <p class="tag">Machine-readable: <a href="{STATUS_HISTORY_NAME}">{STATUS_HISTORY_NAME}</a>
 (schema v{STATUS_SCHEMA}).</p>
 
-<p class="meta">Part of <a href="https://github.com/0xzr/freellmpool">freellmpool</a> (MIT, free, open
+<p class="meta">Part of <a href="{REPOSITORY_URL}">freellmpool</a> (MIT, free, open
 source). Observed by this project's own health probes; your keys and quotas may differ.</p>
 
 </div>

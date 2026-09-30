@@ -767,7 +767,7 @@ def cmd_status_publish(args: argparse.Namespace) -> int:
     from .drift import utcnow
     from .healthcheck import HealthRow
     from .router import Pool
-    from .status_page import collect_live_rows, publish_status
+    from .status_page import collect_live_rows, collect_public_rows, publish_status
 
     if args.rows_file:
         # G37: rows-file mode is a documented-ignore for -p (see its help):
@@ -777,6 +777,13 @@ def cmd_status_publish(args: argparse.Namespace) -> int:
         rows = [HealthRow(str(r.get("target", "?")), str(r.get("status", "?")),
                           r.get("latency_ms"), str(r.get("note", "")))
                 for r in raw]
+    elif args.refresh_public:
+        provider_filter = args.providers.split(",") if args.providers is not None else None
+        try:
+            rows = collect_public_rows(model=args.model, providers=provider_filter, timeout=args.timeout)
+        except ValueError as exc:
+            print(f"status publish: {exc}", file=sys.stderr)
+            return 2
     else:
         pool = Pool.from_default_config()
         provider_filter = args.providers.split(",") if args.providers is not None else None
@@ -791,7 +798,8 @@ def cmd_status_publish(args: argparse.Namespace) -> int:
     page, history = publish_status(args.docs_dir, rows, generated_at=utcnow(),
                                    version=__version__)
     ok = sum(1 for r in rows if r.ok)
-    print(f"status: {ok}/{len(rows)} ok -> {page} + {history}")
+    skipped = sum(1 for r in rows if r.status == "skipped")
+    print(f"status: {ok}/{len(rows) - skipped} ok among attempted probes, {skipped} skipped -> {page} + {history}")
     return 0
 
 
@@ -3452,6 +3460,8 @@ def build_parser() -> argparse.ArgumentParser:
                                   help="per-call timeout seconds")
     p_status_publish.add_argument("--rows-file",
                                   help="use pre-collected rows JSON instead of live probes")
+    p_status_publish.add_argument("--refresh-public", action="store_true",
+                                  help="refresh and probe anonymous providers in isolated state; ignored with --rows-file")
     p_status_publish.set_defaults(func=cmd_status_publish)
     p_status_check = status_sub.add_parser(
         "check", help="validate the published status files (shape + no secrets)"

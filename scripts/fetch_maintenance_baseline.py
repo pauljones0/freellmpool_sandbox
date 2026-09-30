@@ -7,6 +7,8 @@ Signed artifact redirects receive no GitHub Authorization header.
 from __future__ import annotations
 
 import argparse
+import base64
+import binascii
 import io
 import json
 import os
@@ -24,6 +26,7 @@ DEFAULT_REPOSITORY = "pauljones0/freellmpool"
 WORKFLOW_FILE = "provider-evidence-review.yml"
 ARTIFACT_NAME = "freellmpool-public-baseline"
 BASELINE_FILE = "public-baseline.json"
+REGISTRY_FILE = "src/freellmpool/provider_registry.json"
 MAX_BYTES = 8_000_000
 MAX_RUN_PAGES = 5
 SHA = re.compile(r"(?:[0-9a-f]{40}|[0-9a-f]{64})\Z")
@@ -135,6 +138,24 @@ class GitHubAPI:
             raise ValueError("Artifact storage redirects are not accepted")
         return body
 
+    def registry_at(self, revision: str) -> Any:
+        """Fetch JSON only from the authenticated workflow's immutable revision."""
+        if not isinstance(revision, str) or not SHA.fullmatch(revision):
+            raise ValueError("Invalid historical registry revision")
+        response = self.json("GET", f"/repos/{self.repository}/contents/{REGISTRY_FILE}?ref={revision}")
+        if (not isinstance(response, dict) or response.get("type") != "file"
+                or response.get("path") != REGISTRY_FILE or response.get("encoding") != "base64"
+                or type(response.get("size")) is not int or not 0 < response["size"] <= MAX_BYTES
+                or not isinstance(response.get("content"), str) or len(response["content"]) > MAX_BYTES):
+            raise ValueError("Invalid historical registry contents response")
+        try:
+            content = base64.b64decode(response["content"].replace("\n", ""), validate=True)
+        except (binascii.Error, ValueError):
+            raise ValueError("Invalid historical registry encoding") from None
+        if len(content) != response["size"]:
+            raise ValueError("Historical registry size mismatch")
+        return bounded_json(content)
+
 
 class _NoRedirects(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req: Any, fp: Any, code: int, msg: str,
@@ -194,16 +215,19 @@ def read_baseline_archive(content: bytes, revision: str, *,
             if (entry.filename != BASELINE_FILE or entry.is_dir() or entry.file_size > MAX_BYTES
                     or kind not in {0, stat.S_IFREG} or entry.flag_bits & 1):
                 raise ValueError("Invalid baseline archive member")
-            document = validator(bounded_json(archive.read(entry)))
+            raw = bounded_json(archive.read(entry))
     except (zipfile.BadZipFile, RuntimeError, OSError, EOFError):
         raise ValueError("Invalid public baseline archive") from None
+    if not isinstance(raw, dict) or raw.get("source_revision") != revision:
+        raise ValueError("Baseline does not match its trusted workflow revision")
+    document = validator(raw)
     if document.get("source_revision") != revision:
         raise ValueError("Baseline does not match its trusted workflow revision")
     return document
 
 
 def fetch_baseline(api: GitHubAPI, *, current_run_id: int,
-                   validator: Validator = _baseline_validator) -> dict[str, Any] | None:
+                   validator: Validator | None = None) -> dict[str, Any] | None:
     prefix = "/repos/" + api.repository
     repository = api.json("GET", prefix)
     branch = repository.get("default_branch") if isinstance(repository, dict) else None
@@ -245,8 +269,25 @@ def fetch_baseline(api: GitHubAPI, *, current_run_id: int,
                         or not isinstance(origin, dict) or origin.get("id") != run_id
                         or origin.get("head_sha") != revision):
                     raise ValueError("Invalid public artifact provenance or size")
+                archive_validator = validator
+                if archive_validator is None:
+                    def migrate(value: Any, trusted_revision: str = revision) -> dict[str, Any]:
+                        from freellmpool.maintenance import migrate_public_baseline
+                        migrated = dict(migrate_public_baseline(value, api.registry_at(trusted_revision)))
+                        removed = sum(len(value[key]) - len(migrated[key]) for key in
+                                      ("providers", "pending_changes", "incidents", "proposals"))
+                        surviving = {row["id"] for key in ("pending_changes", "incidents")
+                                     for row in migrated[key]}
+                        old_links = sum("source_url" in row for key in ("pending_changes", "incidents")
+                                        for row in value[key] if row["id"] in surviving)
+                        new_links = sum("source_url" in row for key in ("pending_changes", "incidents")
+                                        for row in migrated[key])
+                        print(f"Historical baseline migration: {removed} retired records removed; "
+                              f"{old_links - new_links} obsolete finding links omitted.")
+                        return migrated
+                    archive_validator = migrate
                 return read_baseline_archive(api.download_artifact(artifact_id), revision,
-                                             validator=validator)
+                                             validator=archive_validator)
         if len(runs) < 100:
             return None
     raise ValueError("Workflow history exceeded its bounded search")

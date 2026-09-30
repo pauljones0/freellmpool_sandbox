@@ -11,9 +11,9 @@ import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 from pathlib import Path, PurePosixPath
 
-PAGES_BASE = "https://0xzr.github.io/freellmpool/"
-PAGES_PATH = "/freellmpool/"
-PAGES_HOST = "0xzr.github.io"
+PAGES_BASE = "https://pauljones0.github.io/freellmpool_sandbox/"
+PAGES_PATH = "/freellmpool_sandbox/"
+PAGES_HOST = "pauljones0.github.io"
 LINK_ATTRIBUTES = frozenset({"href", "src"})
 IGNORED_SCHEMES = frozenset({"data", "javascript", "mailto", "tel"})
 

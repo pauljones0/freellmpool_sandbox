@@ -484,6 +484,10 @@ def _modalities(provider_id: str, row: dict[str, Any]) -> tuple[list[str], bool]
     # Generic /models frequently omits task information. This is a candidate
     # hint only; it never substitutes for protocol/capability conformance.
     name = str(row.get("id") or row.get("name") or "").lower()
+    # OVH's public listing omits task/type for NVIDIA Riva TTS endpoints.
+    # Keep these speech-only models out of chat admission and health probes.
+    if provider_id == "ovh" and name.startswith("nvr-tts-"):
+        return ["speech"], True
     if any(word in name for word in ("embed", "bge-", "e5-")):
         return ["embedding"], True
     if "rerank" in name:

@@ -329,8 +329,6 @@ tarjeta, prueba finita o precio están en [docs/ACCOUNTS.md](docs/ACCOUNTS.md).
 | Google Gemini | `GEMINI_API_KEY` | |
 | Cloudflare | `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` | |
 | OpenCode Zen | — | rutas gratuitas dinámicas sujetas a evidencia actual |
-| Aion Labs | `AION_API_KEY` | 20K tokens gratis/día, sin tarjeta |
-| ModelScope API Inference | `MODELSCOPE_API_KEY` | 2.000 llamadas gratis/día |
 | Vercel AI Gateway | `AI_GATEWAY_API_KEY` | solo Poolside con precio público verificado en cero; requiere evidencia actual |
 | Mistral, Cohere, Z.ai, Ollama Cloud | ver `.env.example` | |
 

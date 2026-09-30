@@ -258,6 +258,103 @@ def validate_public_baseline(value: Any) -> JSON:
     return _validate_baseline(value, _public_registry())
 
 
+def _historical_allowlist(document: Any) -> JSON:
+    """Read only historical identities/URLs, never historical runtime policy."""
+    row = _object(document, {"schema", "reviewed_at", "providers", "tombstones"}, {"schema", "providers"})
+    _bounded(row)
+    providers = row["providers"]
+    if (type(row["schema"]) is not int or row["schema"] != 1
+            or not isinstance(providers, list) or len(providers) > 256):
+        raise ValueError("invalid historical registry schema")
+
+    def identity(value: Any) -> bool:
+        return isinstance(value, str) and re.fullmatch(r"[A-Za-z0-9_-]{1,128}", value) is not None
+
+    def public_url(value: Any) -> str:
+        if (not isinstance(value, str) or len(value) > 4096 or "\\" in value
+                or any(char.isspace() or ord(char) < 32 or ord(char) == 127 for char in value)):
+            raise ValueError("invalid historical source URL")
+        try:
+            parsed = urlsplit(value)
+            safe = (parsed.scheme == "https" and bool(parsed.hostname) and not parsed.username
+                    and not parsed.password and parsed.port in {None, 443} and not parsed.fragment)
+        except ValueError:
+            safe = False
+        if not safe:
+            raise ValueError("invalid historical source URL")
+        return value
+
+    result: JSON = {}
+    for provider in providers:
+        if not isinstance(provider, dict) or not identity(provider.get("id")):
+            raise ValueError("invalid historical provider identity")
+        pid = provider["id"]
+        if pid in result:
+            raise ValueError("duplicate historical provider identity")
+        sources, discovery = provider.get("evidence", []), provider.get("discovery", {})
+        if not isinstance(sources, list) or len(sources) > 64 or not isinstance(discovery, dict):
+            raise ValueError("invalid historical source fields")
+        evidence: list[JSON] = []
+        seen: set[str] = set()
+        for source in sources:
+            if not isinstance(source, dict) or not identity(source.get("id")) or source["id"] in seen:
+                raise ValueError("invalid or duplicate historical evidence identity")
+            seen.add(source["id"])
+            evidence.append({"id": source["id"], "url": public_url(source.get("url"))})
+        discovery_url = {"url": public_url(discovery["url"])} if "url" in discovery else {}
+        result[pid] = {"evidence": evidence, "discovery": discovery_url}
+    return result
+
+
+def migrate_public_baseline(value: Any, historical_document: Any) -> JSON:
+    """Migrate a trusted artifact without changing review identities or freshness.
+
+    The fetcher authenticates the original workflow revision before calling this.
+    Historical policy is only an allowlist for validating the complete artifact;
+    packaged tombstones alone authorize removal, and current policy gates output.
+    """
+    historical = _historical_allowlist(historical_document)
+    baseline = _validate_baseline(value, historical)
+    current = _public_registry()
+    from .provider_registry import REGISTRY_PATH
+    packaged = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    retired = {entry["id"] for entry in packaged.get("tombstones", [])}
+    referenced = set(baseline["providers"])
+    for collection in ("pending_changes", "incidents", "proposals"):
+        referenced.update(entry["provider"] for entry in baseline[collection])
+    if referenced - current.keys() - retired:
+        raise ValueError("unexplained removed provider in baseline")
+    baseline["providers"] = {pid: state for pid, state in baseline["providers"].items() if pid not in retired}
+    for collection in ("pending_changes", "incidents", "proposals"):
+        baseline[collection] = [entry for entry in baseline[collection] if entry["provider"] not in retired]
+
+    for collection in ("pending_changes", "incidents"):
+        for finding in baseline[collection]:
+            pid = finding["provider"]
+            source_url = finding.get("source_url")
+            old_source = new_source = None
+            if finding["code"].startswith("source_"):
+                old_source = next((source for source in historical[pid]["evidence"]
+                                   if source["id"] == finding["subject"]), None)
+                new_source = next((source for source in current[pid].get("evidence", [])
+                                   if source["id"] == finding["subject"]), None)
+                if old_source is None or new_source is None:
+                    raise ValueError("unexplained historical source identity")
+            if source_url is None or _source_allowed(current, pid, source_url):
+                continue
+            if (not finding["code"].startswith("source_")
+                    or old_source is None or new_source is None or old_source["url"] != source_url
+                    or new_source["url"] == source_url):
+                raise ValueError("unexplained historical source identity")
+            # The original artifact retains the link. A changed reviewed URL
+            # must not relabel the old before/after hashes as new-source content.
+            del finding["source_url"]
+    for proposal in baseline["proposals"]:
+        if not _source_allowed(current, proposal["provider"], proposal["source_url"]):
+            raise ValueError("obsolete proposal source cannot be migrated")
+    return _validate_baseline(baseline, current)
+
+
 def _validate_private_baseline(value: JSON) -> JSON:
     # Reviewed policy delivery permits same-origin evidence path updates. Private
     # baselines can retain those URLs; this permission never reaches public export.

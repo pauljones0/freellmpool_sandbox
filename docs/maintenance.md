@@ -33,6 +33,29 @@ job receives only a validated public report and a repository-scoped issue token.
 Neither job imports local account observations, prompts, credentials or private
 runtime state.
 
+Baseline restoration reads the registry at the successful workflow's immutable
+commit and validates the entire historical artifact before migration. Explicitly
+retired providers, including Aion and ModelScope, are removed from saved catalog
+and finding collections; other unknown removals fail validation. Surviving
+observations keep their original timestamps, revisions and fingerprints. When a
+reviewed source URL moved but its evidence identity remains, the optional old
+finding link is omitted rather than attaching old hashes to a new URL. The
+original artifact retains that provenance. Quota proposals with obsolete source
+URLs require review and cannot be silently migrated.
+
+The public status publisher runs separately every six hours. Its
+`freellmpool status-page publish --refresh-public` command creates temporary
+state without local credentials, account confirmations or configuration. It
+refreshes public anonymous-provider catalogs and content-identical reviewed
+policy evidence before probing through the same managed free gate and allowance
+ledger. Discovery uses the existing 40-second budget; evidence reads use their
+bounded source-check budget. Each managed health probe reserves at most 512
+output tokens and uses the selected per-call timeout. Changed or unavailable
+sources and incomplete discovery remain visibly skipped. Responding, attempted
+and skipped counts are separate; a skipped probe does not establish an outage.
+The publisher commits the status page, history and sitemap together. Its links
+target [this fork's Pages site](https://pauljones0.github.io/freellmpool_sandbox/).
+
 On machines without a user systemd manager, setup can write the units without
 starting them. Arrange an equivalent daily invocation of
 `freellmpool maintenance --refresh` in the user's private environment; installing

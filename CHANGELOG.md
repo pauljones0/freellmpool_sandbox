@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+- Restore public maintenance baselines across reviewed provider retirements and
+  source URL moves without losing active findings, weakening validation or
+  renewing historical evidence. Aion and ModelScope remain tombstoned.
+- Repair scheduled status publishing by committing the sitemap with each
+  snapshot. Public probes refresh discovery and unchanged policy evidence in
+  isolated temporary state; skipped checks have a separate count.
+- Classify OVH's metadata-free `nvr-tts-*` catalog entries as speech so chat
+  health checks select chat models; explicit modality metadata still wins.
+- Correct this fork's public site URLs and catalog claims, enforce provider-group
+  counts, reconcile stale goal-tracker completion notes, and lazily create the
+  default stats store so explicit isolated stores do not read private state.
 - Conflict-quota honesty: `agent-start` refuses changed allowance definitions
   with their own message (plus a WARNING when usable routes remain) instead of
   misreporting them as exhausted, quota surfaces render those rows as

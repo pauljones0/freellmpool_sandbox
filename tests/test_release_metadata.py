@@ -216,19 +216,19 @@ def test_pages_dates_match_current_documentation_pass() -> None:
     assert "Updated 2026-08-29" in agent_guide
     assert "Updated 2026-08-29" in opencode_guide
     assert (
-        "<loc>https://0xzr.github.io/freellmpool/</loc>"
+        "<loc>https://pauljones0.github.io/freellmpool_sandbox/</loc>"
         "<lastmod>2026-08-29</lastmod>"
     ) in sitemap
     assert (
-        "<loc>https://0xzr.github.io/freellmpool/run-coding-agents-on-free-models.html</loc>"
+        "<loc>https://pauljones0.github.io/freellmpool_sandbox/run-coding-agents-on-free-models.html</loc>"
         "<lastmod>2026-08-29</lastmod>"
     ) in sitemap
     assert (
-        "<loc>https://0xzr.github.io/freellmpool/run-opencode-on-free-models.html</loc>"
+        "<loc>https://pauljones0.github.io/freellmpool_sandbox/run-opencode-on-free-models.html</loc>"
         "<lastmod>2026-08-29</lastmod>"
     ) in sitemap
     assert (
-        "<loc>https://0xzr.github.io/freellmpool/free-llm-api-providers-list.html</loc>"
+        "<loc>https://pauljones0.github.io/freellmpool_sandbox/free-llm-api-providers-list.html</loc>"
         "<lastmod>2026-08-29</lastmod>"
     ) in sitemap
 
@@ -237,7 +237,7 @@ def test_every_sitemap_lastmod_is_visible_on_its_page() -> None:
     sitemap_path = ROOT / "docs" / "sitemap.xml"
     root = ElementTree.fromstring(sitemap_path.read_text(encoding="utf-8"))
     namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-    base = "https://0xzr.github.io/freellmpool/"
+    base = "https://pauljones0.github.io/freellmpool_sandbox/"
 
     for entry in root.findall("s:url", namespace):
         location = entry.findtext("s:loc", namespaces=namespace)

@@ -229,7 +229,8 @@ class ManagedPool(Pool):
         self._last_used: dict[str, int] = {}
         self._request_sequence = [0]  # shared by asynchronous worker copies
         self._key_rotator = KeyRotator()
-        kwargs.setdefault("stats_store", StatsStore())
+        if "stats_store" not in kwargs:
+            kwargs["stats_store"] = StatsStore()
         kwargs.setdefault("conformance", ConformanceStore(default_conformance_path(env)))
         kwargs.setdefault("route_health", RouteHealthStore(path=default_route_health_path(env)))
         super().__init__(providers or [], env=env, post=post, stream_post=stream_post, **kwargs)

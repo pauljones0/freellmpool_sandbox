@@ -1,6 +1,9 @@
 # Product Goals — Easy Free Tokens
 
-Status: **Draft** (vision + kills accepted 2026-09-18; goal texts await explicit acceptance).
+Status: **Implementation progress record**. Vision and killed bets were accepted
+2026-09-18; subsequent goal-chain acceptance and completion evidence are recorded
+in the entries below. G1–G41 are complete; the maintenance follow-up is recorded
+separately below.
 
 Vision (locked): **easy free token setup that just works — free-only scope.**
 Anything that manages, meters, or optimizes paid spend is out. Anything that
@@ -17,6 +20,38 @@ removes setup steps or failure modes is in.
   checked with cited evidence (command output, test results, links). Partial
   progress never counts as completion.
 - Commit and push per completed goal. Keep this file's statuses current.
+
+## Maintenance follow-up — 2026-09-29
+
+Completed the remaining Aion/ModelScope retirement cleanup in setup guidance,
+environment examples, Compose and the landing page. Their existing tombstones
+remain authoritative: replaying old credentials, provider objects and cached
+free discovery rows produced no retired routes; registry reintroduction fails.
+
+Restored the trusted public baseline from workflow run `36122700555`: migration
+removed five retired records and omitted three obsolete finding links while
+preserving active findings, hashes, fingerprints, revision and freshness.
+An isolated live public maintenance refresh then produced a validated report.
+
+Public status now refreshes discovery and unchanged evidence in temporary
+state, commits the page/history/sitemap together, and reports skipped probes
+separately. OVH's metadata-free `nvr-tts-*` entries are speech, preventing false
+chat failures. Live checks observed two successes, one upstream OVH HTTP 429
+and one OpenCode evidence skip. Eight changed policy sources were fetched twice
+with stable hashes; they remain review findings, not automatically renewed
+evidence or proof that the providers withdrew free access.
+
+Reconciled architecture, packaged counts, fork Pages URLs and stale G38/G39
+completion notes. Removed the clean redundant G38 worktree after proving its
+files match main's port `ac3b360` and retain later fixes; pruned the missing G29
+worktree after confirming `b47988a` is incorporated. Only main remains.
+
+Three independent plan reviewers passed the repair and amendments; independent
+implementation reviews returned SHIP. Full warning-strict pytest passed:
+3,774 tests and 14 subtests; package coverage is 88.74% lines and 80.89% branches,
+above the independent 80%/70% floors. Ruff, both configured mypy checks,
+catalog/policy/count/docs checks, build/twine/fresh-wheel smoke and the
+144-request/concurrency-24 proxy stress check passed.
 
 ## G1 — One-command distribution (Status: done 2026-09-18)
 
@@ -1732,10 +1767,11 @@ Done when:
   snippet + test-registry seam + guide rewrite + wheel script.
 - [x] Focused 89/89 + hermetic 4/4 green (incl. `-W error` warning
   flags); ruff + mypy-strict clean on touched modules.
-- [ ] Full gate rc0 + wheel job + live audit + push (waiting on heavy
-  lock — NOT done; changes uncommitted in worktree).
+- [x] Full gate and push completed: `d6629a9` is on main, and the later
+  G40/G41 gates and main CI run `36210055982` validate the incorporated work.
+  The original waiting-on-lock note is superseded by those completion records.
 
-Honesty residuals: conflict quota rows read as exhausted (fail-closed);
+Honesty residuals: quota conflict wording was corrected by G40;
 foreign 503-empty retries to the deadline; union `a/b` config entries
 are menu-only (proxy routes aliases); stop's kill-0 reads zombies alive
 until reaped; SIGTERM-may-orphan untested (rerun reuses, stop cleans).
@@ -1774,7 +1810,9 @@ Done when:
 - [x] Focused 73/73 (normal + empty-HOME) + ruff + mypy-strict
   (managed_cli) + diff-check + docs-check green; adversarial port
   review 2xSHIP; zero chat/transport calls pinned on cannot-validate.
-- [ ] Full gate rc0 + push (waiting on heavy lock — NOT done).
+- [x] Full gate and push completed: the byte-identical port `ac3b360` and
+  follow-up corrections `1f740d0` are on main. The completion heading records
+  3492 passing tests; later main CI run `36210055982` is also green.
 
 Honesty residuals: ambiguity is global (any-key collision fails every
 literal — deliberate strictness); extras-collision ask-side covered by

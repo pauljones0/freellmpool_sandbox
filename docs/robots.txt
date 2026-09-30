@@ -13,4 +13,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://0xzr.github.io/freellmpool/sitemap.xml
+Sitemap: https://pauljones0.github.io/freellmpool_sandbox/sitemap.xml

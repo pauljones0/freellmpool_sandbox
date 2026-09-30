@@ -35,7 +35,9 @@ A conditional grant needs current local account evidence. A zero-price route sti
 - **Vercel:** only verified zero-priced routes are retained. Account credits do not establish model eligibility.
 - **Cohere:** trial keys have a recurring monthly evaluation-call cap. A production key with a superficially similar rate limit is still paid. Native model listing is paginated and exposes endpoint/deprecation metadata.
 - **Mistral:** use account/model limits from the console. Optional admin-only GET billing endpoints can supply richer data; ordinary inference credentials need not be administrators. Buying credit or receiving a 429 does not establish a larger recurring free allowance.
-- **Aion:** account evidence must establish the provider's recurring free tier before routing.
+- **Retired providers:** Aion and ModelScope have no current grants or routes.
+  Their tombstones prevent re-admission; historical observations below do not
+  establish current free access.
 - **LLM7, OVH and Kilo:** anonymous grants use IP-related shared scopes and omit `Authorization` completely. Adding a key does not create another IP allowance. LLM7 anonymous eligibility uses reviewed Turbo/non-usage-based candidates; positive price metadata for paid modes does not erase a separately verified anonymous grant.
 - **OpenCode:** Zen's free models are temporary offers with their own conditions. Go is paid. Free-only profiles must not inherit Zen auto-reload or paid fallback. Responses-only models need the correct protocol and independent conformance.
 - **Z.ai:** the global listing omits some exact models documented as free. The reviewed grant can supply unlisted candidates after a complete, nonempty listing succeeds; it does not prove availability. Positive prices in the listing take precedence. Separate bounded checks found two working routes and one timeout, as recorded in [API coverage](api-coverage.md#reviewed-candidates-missing-from-a-model-listing).

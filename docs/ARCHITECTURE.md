@@ -1,43 +1,50 @@
 # Architecture
 
-freellmpool is a local gateway built around a packaged catalog,
-credential-aware configuration, an eligibility-aware router, bounded provider
-clients, and thin CLI/proxy/MCP interfaces. The current catalog contains 22
-provider groups, 431 chat models, and 128 enabled chat routes. Catalog presence
-is not routing eligibility: recurring free tiers, keyless endpoints, finite
-trials, pin-only routes, and disabled candidates remain distinct.
+freellmpool is a local gateway built around reviewed provider policy,
+current model discovery, free eligibility, transactional allowance accounting,
+bounded provider clients, and CLI/proxy/MCP interfaces. The packaged compatibility
+catalog contains 13 provider groups, 128 cataloged chat models, and
+128 enabled chat routes. Catalog counts do not establish current usable capacity:
+managed routing also requires fresh policy and discovery, account evidence where
+needed, and verified protocol capabilities for feature-specific calls. Aion and
+ModelScope are retired; their registry tombstones prevent accidental re-admission.
 
 ```text
 CLI / Python / MCP / OpenAI, Responses, or experimental Anthropic clients
                               |
                               v
-                    Pool (router.py)
-       configured/keyless providers + enabled automatic targets
-       exact pins may select an enabled pin-only target
+                 ManagedPool (managed.py)
+           current discovery + reviewed free admission
+           account evidence + required conformance
                               |
-             quota + route health + conformance + metrics
+             allowance reservations + health + metrics
                               |
                               v
                    bounded client dispatch
-        OpenAI-shaped adapter | Gemini adapter | plugins
+               OpenAI-shaped adapter | Gemini adapter
                     /              |              \
                  chat         embeddings       transcription
 ```
 
 ## Configuration and eligibility
 
-1. `config.py` loads the packaged `providers.toml` and merges an optional user
-   provider catalog (`$FREELLMPOOL_CONFIG` or the default config directory).
+1. Normal `Pool.from_default_config()`, CLI, proxy and MCP entry points construct
+   `ManagedPool`. `provider_registry.json` defines reviewed free grants and
+   authoritative discovery sources; discovered model facts are checked against
+   that policy before becoming routes.
 2. Environment variables override keys stored under `[keys]` in
    `config.toml`; required extra fields such as the Cloudflare account ID are
    checked too. Keyless and key-optional providers can be configured without a
    credential.
-3. `Pool` builds automatic candidates only from models with both `enabled =
-   true` and `auto = true`. An exact provider/model pin may select an enabled
-   `auto = false` route, but never a disabled one.
+3. Every route, including an exact pin, must pass free eligibility and required
+   feature checks. Missing or expired evidence, paid/trial access, explicit user
+   exclusions, and exhausted or conflicting allowances prevent dispatch.
 4. Chat, embedding, and transcription catalogs are separate. Their route
    counts must not be treated as interchangeable.
-5. `freellmpool local discover` performs an explicit, bounded preview of a
+5. The compatibility `Pool` API and `providers.toml` retain enabled/automatic
+   flags and explicit pin-only routes for callers constructing their own pools.
+   User catalogs and plugins alone cannot establish managed free entitlement.
+   `freellmpool local discover` performs an explicit, bounded preview of a
    fixed list of local runtimes, or one user-supplied canonical literal-loopback
    URL. `local import --yes` writes only pin-only routes to the user catalog;
    `local remove --yes` reverses only blocks managed by that import.
@@ -58,6 +65,8 @@ type errors include location/type metadata without echoing config values.
 
 | Module | Responsibility |
 |---|---|
+| `managed.py`, `free_policy.py`, `provider_registry.py`, `discovery.py` | Immutable route snapshots, reviewed free admission, current catalog facts, and independently renewed policy evidence. |
+| `allowances.py` | SQLite transactions reserve shared account/model allowances before dispatch and settle observed usage. |
 | `config.py`, `models.py`, `providers.toml` | Catalog parsing, user overrides, credentials, and route metadata. |
 | `router.py`, `routing_modes.py`, `capability.py`, `task_quality.py` | Candidate filtering, exact pins, route ordering, task/capability matching, and failover. |
 | `quota.py`, `metrics.py`, `route_health.py`, `conformance.py`, `readiness.py` | Local daily hints, latency/failure evidence, persistent circuits, protocol evidence, and advisory readiness. |
@@ -72,10 +81,10 @@ type errors include location/type metadata without echoing config values.
 
 ## Routing and failure handling
 
-For an unpinned chat request, the pool starts with enabled automatic targets
-available from the current configuration. Context limits, requested protocol
-features, persistent route circuits, provider cooldowns, local quota hints, and
-the selected routing mode refine their order:
+For an unpinned chat request, the managed pool starts with admitted automatic
+routes from its current snapshot. Context limits, requested protocol features,
+persistent route circuits, provider cooldowns, allowance availability, and the
+selected routing mode refine their order:
 
 - `fair` balances by provider and then model so wide catalogs do not dominate.
 - `fast` prefers measured latency and health.
@@ -91,11 +100,13 @@ Local `rpd` values are advisory request-count hints, not provider entitlements
 or monetary guarantees. freellmpool's counters roll over at UTC midnight;
 upstream providers use their own limit and reset windows.
 
-Each non-streaming candidate gets at most two bounded attempts for retryable
-transport errors or HTTP 408/429/5xx responses inside the caller's deadline,
-honoring `Retry-After` only when feasible. If the candidate still fails, the
-router records a normalized failure, updates cooldown/circuit state, and
-advances to the next target. A stream can fail over only before the downstream
+Before contacting a managed route, an atomic ledger transaction reserves its
+account and model allowances. Dispatch uses a single-attempt transport so each
+provider call owns its reservation. Failures update normalized health and
+cooldown evidence before another eligible route is considered; the caller's
+deadline bounds the overall operation. The directly constructed compatibility
+`Pool` retains its bounded retry behavior and advisory daily request counters.
+A stream can fail over only before the downstream
 event stream is committed. Once headers or events are sent, freellmpool never
 replays the request on another provider; a later failure uses protocol-specific
 error framing when possible and never emits a successful terminal event.
@@ -106,8 +117,9 @@ obtained before downstream commit, then subsequent deltas are relayed in
 protocol order. Tool calls and richer content remain on a buffered
 compatibility path so partially translated structures are never exposed.
 
-On success, the pool records local quota, latency, health, and aggregate token
-statistics. It stores only normalized operational evidence; prompts, responses,
+On success, the managed pool settles reserved allowances using observed usage
+and records latency, health, and aggregate token statistics. It stores only
+normalized operational evidence; prompts, responses,
 authorization headers, and raw credentials are excluded from those stores.
 
 ## Proxy and persistence

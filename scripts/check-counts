@@ -17,6 +17,9 @@ from catalog_counts import catalog_counts  # noqa: E402, I001
 
 
 REQUIRED_SURFACES = (
+    ("docs/ARCHITECTURE.md", "{providers} provider groups"),
+    ("docs/ARCHITECTURE.md", "{cataloged_chat_models} cataloged chat models"),
+    ("docs/ARCHITECTURE.md", "{enabled_chat_models} enabled chat routes"),
     ("docs/legacy-0.13-guide.md", "{providers} LLM providers"),
     ("docs/legacy-0.13-guide.md", "{enabled_chat_models} enabled chat routes"),
     ("docs/legacy-0.13-guide.md", "{cataloged_chat_models} cataloged"),
@@ -55,7 +58,6 @@ EXTERNAL_CONTEXT = (
 )
 
 PROVIDER_ONLY_CONTEXT = (
-    "keyless",
     "no API key",
     "need no API",
     "providers ok",
@@ -122,7 +124,7 @@ def _check_public_drift(root: Path, counts) -> list[str]:
         *sorted((root / "docs").glob("**/*")),
     ]
     provider_claim = re.compile(
-        r"\b(?P<n>\d+)\s+(?:(?:cataloged|pooled|free|chat|LLM)\s+){0,4}providers\b",
+        r"\b(?P<n>\d+)\s+(?:(?:cataloged|pooled|free|chat|LLM)\s+){0,4}(?:providers|provider\s+groups)\b",
         flags=re.IGNORECASE,
     )
     enabled_route_claim = re.compile(r"\b(?P<n>\d+)\s+enabled\s+chat\s+routes\b")
@@ -137,6 +139,11 @@ def _check_public_drift(root: Path, counts) -> list[str]:
             continue
         rel = path.relative_to(root)
         content = path.read_text(encoding="utf-8")
+        historical_comparison = None
+        if path.name == "legacy-0.13-guide.md":
+            section = re.search(r"^## How it compares\n(?:(?!^## ).)*", content, re.MULTILINE | re.DOTALL)
+            if section and re.search(r"^Comparison snapshot: \d{4}-\d{2}-\d{2}\.", section[0], re.MULTILINE):
+                historical_comparison = section.span()
         checks = (
             (
                 provider_claim,
@@ -159,6 +166,8 @@ def _check_public_drift(root: Path, counts) -> list[str]:
         )
         for pattern, expected, label, exemptions in checks:
             for match in pattern.finditer(content):
+                if historical_comparison and historical_comparison[0] <= match.start() < historical_comparison[1]:
+                    continue
                 context_starts = (
                     content.rfind(". ", 0, match.start()),
                     content.rfind("\n\n", 0, match.start()),
