@@ -49,7 +49,7 @@
 schedule.</strong> Attempted probes send a small real request to eligible providers.
 Skipped rows had no live request and do not establish whether a provider is working.</p>
 
-<div class="note" id="stale">Snapshot taken <code>2026-09-30T05:39:37Z</code>
+<div class="note" id="stale">Snapshot taken <code>2026-09-30T12:43:01Z</code>
 <span id="age"></span> — treat snapshots older than 12 hours as stale. Snapshots refresh
 on a 6-hour schedule; intraday outages between snapshots will not appear here.</div>
 
@@ -57,14 +57,15 @@ on a 6-hour schedule; intraday outages between snapshots will not appear here.</
 <p><strong>2/2</strong> providers responding among attempted probes; 1 skipped.</p>
 <table>
 <tr><th>Provider/model</th><th>Status</th><th>Latency</th><th>Note</th></tr>
-<tr><td>llm7/codestral-latest</td><td><span class="pill ok">ok</span></td><td class="num">513 ms</td><td>2 tok</td></tr>
-<tr><td>kilo/kilo-auto/free</td><td><span class="pill ok">ok</span></td><td class="num">1,589 ms</td><td>17 tok</td></tr>
+<tr><td>llm7/codestral-latest</td><td><span class="pill ok">ok</span></td><td class="num">876 ms</td><td>2 tok</td></tr>
+<tr><td>kilo/kilo-auto/free</td><td><span class="pill ok">ok</span></td><td class="num">1,265 ms</td><td>17 tok</td></tr>
 <tr><td>opencode</td><td><span class="pill muted">skipped</span></td><td class="num">-</td><td>free policy evidence missing or expired</td></tr>
 </table>
 
 <h2>History</h2>
 <table>
 <tr><th>Snapshot (UTC)</th><th>Responding/attempted</th><th>Skipped</th></tr>
+<tr><td>2026-09-30T12:43:01Z</td><td class="num">2/2</td><td>1 skipped</td></tr>
 <tr><td>2026-09-30T05:39:37Z</td><td class="num">2/2</td><td>1 skipped</td></tr>
 <tr><td>2026-09-30T03:47:58Z</td><td class="num">2/2</td><td>1 skipped</td></tr>
 <tr><td>2026-09-30T03:24:50Z</td><td class="num">2/2</td><td>1 skipped</td></tr>
@@ -76,7 +77,6 @@ on a 6-hour schedule; intraday outages between snapshots will not appear here.</
 <tr><td>2026-09-24T21:34:47Z</td><td class="num">0/0</td><td>3 skipped</td></tr>
 <tr><td>2026-09-24T17:16:50Z</td><td class="num">0/0</td><td>3 skipped</td></tr>
 <tr><td>2026-09-24T11:54:27Z</td><td class="num">0/0</td><td>3 skipped</td></tr>
-<tr><td>2026-09-24T04:59:05Z</td><td class="num">0/0</td><td>3 skipped</td></tr>
 </table>
 <p class="tag">Machine-readable: <a href="status-history.json">status-history.json</a>
 (schema v1).</p>
@@ -88,7 +88,7 @@ source). Observed by this project's own health probes; your keys and quotas may 
 <script>
 (function() {
   var el = document.getElementById("age");
-  var taken = Date.parse("2026-09-30T05:39:37Z");
+  var taken = Date.parse("2026-09-30T12:43:01Z");
   if (!el || isNaN(taken)) return;
   var mins = Math.max(0, Math.round((Date.now() - taken) / 60000));
   var label = mins < 90 ? mins + " min ago" : Math.round(mins / 60) + " h ago";
