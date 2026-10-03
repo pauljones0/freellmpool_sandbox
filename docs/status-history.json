@@ -1,31 +1,6 @@
 [
   {
     "freellmpool": "0.14.7",
-    "generated_at": "2026-09-30T05:39:37Z",
-    "rows": [
-      {
-        "latency_ms": 512.9972840000007,
-        "note": "2 tok",
-        "status": "ok",
-        "target": "llm7/codestral-latest"
-      },
-      {
-        "latency_ms": 1588.820281000004,
-        "note": "17 tok",
-        "status": "ok",
-        "target": "kilo/kilo-auto/free"
-      },
-      {
-        "latency_ms": null,
-        "note": "free policy evidence missing or expired",
-        "status": "skipped",
-        "target": "opencode"
-      }
-    ],
-    "schema": 1
-  },
-  {
-    "freellmpool": "0.14.7",
     "generated_at": "2026-09-30T12:43:01Z",
     "rows": [
       {
@@ -281,6 +256,31 @@
       {
         "latency_ms": 1397.394134999999,
         "note": "16 tok",
+        "status": "ok",
+        "target": "kilo/kilo-auto/free"
+      },
+      {
+        "latency_ms": null,
+        "note": "free policy evidence missing or expired",
+        "status": "skipped",
+        "target": "llm7"
+      },
+      {
+        "latency_ms": null,
+        "note": "free policy evidence missing or expired",
+        "status": "skipped",
+        "target": "opencode"
+      }
+    ],
+    "schema": 1
+  },
+  {
+    "freellmpool": "0.14.7",
+    "generated_at": "2026-10-03T21:23:26Z",
+    "rows": [
+      {
+        "latency_ms": 2101.9752660000004,
+        "note": "2 tok",
         "status": "ok",
         "target": "kilo/kilo-auto/free"
       },
