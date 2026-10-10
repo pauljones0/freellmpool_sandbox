@@ -69,14 +69,14 @@ jobs:
           python3 scripts/security_exceptions.py ids trivy > .trivyignore.generated
 
       - name: Set up pinned Buildx and BuildKit
-        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
         with:
           version: v0.36.1
           driver-opts: >-
             image=moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8
 
       - name: Build exact release image archive
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
         with:
           context: .
           tags: freellmpool:release-scan-${{ github.sha }}
@@ -128,7 +128,7 @@ jobs:
           sha256sum freellmpool-image.tar > freellmpool-image.tar.sha256
 
       - name: Upload exact scanned image
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: scanned-release-image-${{ github.sha }}
           path: |
@@ -149,13 +149,13 @@ jobs:
       packages: write
     steps:
       - name: Download exact scanned image
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: scanned-release-image-${{ github.sha }}
           path: /tmp/scanned-release-image
 
       - name: Set up pinned Buildx and BuildKit
-        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
         with:
           version: v0.36.1
           driver-opts: >-
@@ -228,7 +228,7 @@ jobs:
           done
 
       - name: Generate downloadable image SBOM
-        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
           image: ghcr.io/${{ github.repository }}@${{ steps.push.outputs.digest }}
           format: spdx-json
