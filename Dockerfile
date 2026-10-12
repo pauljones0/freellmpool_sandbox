@@ -9,7 +9,7 @@
 # set FREELLMPOOL_PROXY_KEY to require a Bearer token.
 # For a different published port, run proxy with --allowed-authority HOST:PORT
 # matching the client URL, as well as --host 0.0.0.0 --port 8080 --allow-lan.
-FROM python:3.14-alpine@sha256:c6ead215bfd31f1e433d968853b7a769989117115b728874824e6c0a27cb96fc
+FROM python:3.14-alpine@sha256:f6a589d43c42b9e7f7dc67a12d37132491f362859a5d750607710cc56da3bc72
 
 WORKDIR /app
 RUN apk upgrade --no-cache
