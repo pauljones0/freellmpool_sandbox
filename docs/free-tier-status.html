@@ -49,7 +49,7 @@
 schedule.</strong> Attempted probes send a small real request to eligible providers.
 Skipped rows had no live request and do not establish whether a provider is working.</p>
 
-<div class="note" id="stale">Snapshot taken <code>2026-10-15T21:29:17Z</code>
+<div class="note" id="stale">Snapshot taken <code>2026-10-16T04:38:59Z</code>
 <span id="age"></span> — treat snapshots older than 12 hours as stale. Snapshots refresh
 on a 6-hour schedule; intraday outages between snapshots will not appear here.</div>
 
@@ -65,6 +65,7 @@ on a 6-hour schedule; intraday outages between snapshots will not appear here.</
 <h2>History</h2>
 <table>
 <tr><th>Snapshot (UTC)</th><th>Responding/attempted</th><th>Skipped</th></tr>
+<tr><td>2026-10-16T04:38:59Z</td><td class="num">0/0</td><td>3 skipped</td></tr>
 <tr><td>2026-10-15T21:29:17Z</td><td class="num">0/0</td><td>3 skipped</td></tr>
 <tr><td>2026-10-15T17:07:15Z</td><td class="num">0/0</td><td>3 skipped</td></tr>
 <tr><td>2026-10-15T11:38:25Z</td><td class="num">0/0</td><td>3 skipped</td></tr>
@@ -76,7 +77,6 @@ on a 6-hour schedule; intraday outages between snapshots will not appear here.</
 <tr><td>2026-10-13T22:51:10Z</td><td class="num">0/0</td><td>3 skipped</td></tr>
 <tr><td>2026-10-13T14:19:26Z</td><td class="num">0/0</td><td>3 skipped</td></tr>
 <tr><td>2026-10-13T00:47:19Z</td><td class="num">0/0</td><td>3 skipped</td></tr>
-<tr><td>2026-10-12T15:37:58Z</td><td class="num">0/0</td><td>3 skipped</td></tr>
 </table>
 <p class="tag">Machine-readable: <a href="status-history.json">status-history.json</a>
 (schema v1).</p>
@@ -88,7 +88,7 @@ source). Observed by this project's own health probes; your keys and quotas may 
 <script>
 (function() {
   var el = document.getElementById("age");
-  var taken = Date.parse("2026-10-15T21:29:17Z");
+  var taken = Date.parse("2026-10-16T04:38:59Z");
   if (!el || isNaN(taken)) return;
   var mins = Math.max(0, Math.round((Date.now() - taken) / 60000));
   var label = mins < 90 ? mins + " min ago" : Math.round(mins / 60) + " h ago";
