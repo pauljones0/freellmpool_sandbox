@@ -1,31 +1,6 @@
 [
   {
     "freellmpool": "0.14.7",
-    "generated_at": "2026-10-17T15:41:08Z",
-    "rows": [
-      {
-        "latency_ms": null,
-        "note": "free policy evidence missing or expired",
-        "status": "skipped",
-        "target": "llm7"
-      },
-      {
-        "latency_ms": null,
-        "note": "free policy evidence missing or expired",
-        "status": "skipped",
-        "target": "kilo"
-      },
-      {
-        "latency_ms": null,
-        "note": "free policy evidence missing or expired",
-        "status": "skipped",
-        "target": "opencode"
-      }
-    ],
-    "schema": 1
-  },
-  {
-    "freellmpool": "0.14.7",
     "generated_at": "2026-10-17T20:41:00Z",
     "rows": [
       {
@@ -277,6 +252,31 @@
   {
     "freellmpool": "0.14.7",
     "generated_at": "2026-10-20T17:15:59Z",
+    "rows": [
+      {
+        "latency_ms": null,
+        "note": "free policy evidence missing or expired",
+        "status": "skipped",
+        "target": "llm7"
+      },
+      {
+        "latency_ms": null,
+        "note": "free policy evidence missing or expired",
+        "status": "skipped",
+        "target": "kilo"
+      },
+      {
+        "latency_ms": null,
+        "note": "free policy evidence missing or expired",
+        "status": "skipped",
+        "target": "opencode"
+      }
+    ],
+    "schema": 1
+  },
+  {
+    "freellmpool": "0.14.7",
+    "generated_at": "2026-10-20T21:41:42Z",
     "rows": [
       {
         "latency_ms": null,
