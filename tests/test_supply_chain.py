@@ -168,7 +168,7 @@ def test_container_runtime_dependency_resolution_is_exactly_pinned():
 
     assert pins == {
         "anyio==4.14.2",
-        "certifi==2026.7.22",
+        "certifi==2026.10.19",
         "h11==0.16.0",
         "httpcore==1.0.9",
         "httpx==0.28.1",

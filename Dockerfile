@@ -17,7 +17,7 @@ COPY pyproject.toml README.md ./
 COPY src ./src
 RUN pip install --no-cache-dir \
     "anyio==4.14.2" \
-    "certifi==2026.7.22" \
+    "certifi==2026.10.19" \
     "h11==0.16.0" \
     "httpcore==1.0.9" \
     "httpx==0.28.1" \
